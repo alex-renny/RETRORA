@@ -36,6 +36,8 @@ func _ready():
 	UpdateManager.update_available.connect(_on_update_available)
 	if UpdateManager.is_update_available:
 		_show_update_prompt(UpdateManager.latest_version, UpdateManager.release_notes)
+	else:
+		UpdateManager.check_for_updates()
 
 func _on_update_available(tag: String, _url: String, notes: String):
 	_show_update_prompt(tag, notes)

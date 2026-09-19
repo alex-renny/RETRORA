@@ -14,15 +14,21 @@ var latest_version: String = ""
 var download_url: String = ""
 var release_notes: String = ""
 
+var is_checking: bool = false
+
 func _ready():
 	# Automatically check for updates on game startup
 	check_for_updates()
 
 func check_for_updates():
+	if is_checking:
+		return
+	is_checking = true
 	var http = HTTPRequest.new()
-	http.timeout = 5.0 # Fast 5s timeout, will not block or hang offline
+	http.timeout = 8.0 # 8s timeout for mobile data
 	add_child(http)
 	http.request_completed.connect(func(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray):
+		is_checking = false
 		_on_request_completed(result, response_code, body)
 		http.queue_free()
 	)
@@ -31,6 +37,7 @@ func check_for_updates():
 	var headers = ["User-Agent: RETRORA-Godot-App", "Accept: application/vnd.github.v3+json"]
 	var err = http.request(url, headers)
 	if err != OK:
+		is_checking = false
 		has_checked = true
 		update_check_completed.emit(false)
 
