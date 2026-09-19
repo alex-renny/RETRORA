@@ -1,30 +1,44 @@
 extends Node2D
 
-const THEMES = [
-	{
+const THEMES = {
+	"city": {
 		"name": "City",
 		"road": Color("242428"),
 		"stripes": Color("e0e0e0"),
 		"shoulder": Color("3d3d45"),
 		"edge": Color("555560")
 	},
-	{
-		"name": "Night Road",
-		"road": Color("0e121e"),
+	"cyber_neon": {
+		"name": "Cyber Neon",
+		"road": Color("0a0e1c"),
 		"stripes": Color("00f0ff"),
-		"shoulder": Color("150d2a"),
-		"edge": Color("2a1a4a")
+		"shoulder": Color("190e2e"),
+		"edge": Color("f000ff")
 	},
-	{
+	"desert": {
 		"name": "Desert Highway",
-		"road": Color("3b2f2f"),
-		"stripes": Color("ffe082"),
-		"shoulder": Color("c28b55"),
-		"edge": Color("8c5828")
+		"road": Color("3b2f23"),
+		"stripes": Color("ffcc44"),
+		"shoulder": Color("8b5a2b"),
+		"edge": Color("d28c46")
+	},
+	"sunset_coast": {
+		"name": "Sunset Coast",
+		"road": Color("1c142b"),
+		"stripes": Color("ff5588"),
+		"shoulder": Color("421a4f"),
+		"edge": Color("ffaa33")
+	},
+	"lava_gorge": {
+		"name": "Lava Gorge",
+		"road": Color("220a0a"),
+		"stripes": Color("ff4400"),
+		"shoulder": Color("551105"),
+		"edge": Color("ffaa00")
 	}
-]
+}
 
-var current_theme_idx: int = 0
+var current_road_id: String = "city"
 var scroll_offset: float = 0.0
 var scroll_speed: float = 200.0
 
@@ -39,15 +53,22 @@ func _process(delta: float):
 	scroll_offset = fmod(scroll_offset + scroll_speed * delta, TOTAL_STRIPE_CYCLE)
 	queue_redraw()
 
+func set_road_by_id(id: String):
+	if THEMES.has(id):
+		current_road_id = id
+	queue_redraw()
+
 func set_theme(idx: int):
-	current_theme_idx = clamp(idx, 0, THEMES.size() - 1)
+	var keys = THEMES.keys()
+	if idx >= 0 and idx < keys.size():
+		current_road_id = keys[idx]
 	queue_redraw()
 
 func set_speed(speed: float):
 	scroll_speed = speed
 
 func _draw():
-	var theme = THEMES[current_theme_idx]
+	var theme = THEMES.get(current_road_id, THEMES["city"])
 
 	# 1. Draw Shoulders
 	draw_rect(Rect2(0, 0, ROAD_LEFT, 640), theme["shoulder"])

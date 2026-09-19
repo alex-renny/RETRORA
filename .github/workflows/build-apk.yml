@@ -92,28 +92,26 @@ jobs:
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "RETRORA Arcade v1.0.0"
+          tag_name: v1.1.0
+          name: "RETRORA Arcade v1.1.0 - Unlocks & Progression Update"
           make_latest: true
           body: |
-            ## 🎮 RETRORA Arcade v1.0.0 (Official Android Release)
+            ## 🎮 RETRORA Arcade v1.1.0 (Major Progression & Unlocks Update)
             
             Download and install **Retrora.apk** directly on your Android phone!
             
-            ### Included Features:
-            - **Custom App Icon**: Retro gamepad "R" launcher icon.
-            - **7 Offline Classic Arcade Games**:
-              1. 🐍 **Snake** (Grid Arcade)
-              2. 🏎️ **Retro Racer** (3-Lane Highway)
-              3. 🕊️ **Sky Hopper** (One-Button Flying)
-              4. ⚪ **Bounce Quest** (Retro Platformer)
-              5. 🚀 **Space Defender** (Vertical SHMUP & Boss)
-              6. 🧱 **Brick Breaker** (Paddle & Ball Physics)
-              7. 🐹 **Hamster Game** (Smart Watch Whack-a-Hamster)
-            - **Central High Scores Leaderboard**
-            - **Settings Menu**: SFX, Music, Screen Shake, Vibration
-            - **CRT Scanline Shader Overlay**
-            - **Unified In-Game Pause Menu**
+            ### What's New in v1.1.0:
+            - **Major Meta-Progression & Unlock System**:
+              - 🐍 **Snake**: 5 Unlockable Snakes (Neon Viper, Desert Cobra, Cyber Dragon, Shadow Wyrm) & 5 Themed Arenas.
+              - 🏎️ **Retro Racer**: 5 Unlockable Vehicles (Superbike, Muscle Cruiser, Turbo Bus, Golden F1) & 5 Roads.
+              - 🕊️ **Sky Hopper**: 5 Unlockable Birds (Blue Falcon, Cyber Drone, Pixel Phoenix, Midnight Bat).
+              - ⚪ **Bounce Quest**: New Levels 4 & 5 (Neon Gravity Lab, Magma Citadel) + 3 Ball Skins.
+              - 🚀 **Space Defender**: 5 Starships (Interceptor, Plasma Cruiser, Phantom Bomber, Golden Valkyrie) with unique firing patterns.
+              - 🧱 **Brick Breaker**: 4 Striker Paddles, 3 Ball Types, and 3 Themed Arenas.
+              - 🐹 **Hamster Game**: 5 Unlockable Animals (Bunny, Kitty, Panda, Fox) + Instant sudden-death bomb explosions!
+            - **In-Game Garage / Customizer Modals**: Accessible via `[ 🎨 ]` buttons across all games.
+            - **Floating Unlock Toasts & Sound**: Celebrate achievements during live gameplay.
+            - **In-App Auto-Update Notifier**: Notifies when a newer version is released.
           files: build/Retrora.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

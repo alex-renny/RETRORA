@@ -12,12 +12,26 @@ var is_active: bool = true
 var is_invulnerable: bool = false
 var want_high_bounce: bool = false
 var move_dir: float = 0.0
+var current_skin_id: String = "classic_red"
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 func _ready():
 	add_to_group("player")
+	apply_ball_skin(SaveManager.get_equipped("bounce_ball", "classic_red"))
+
+func apply_ball_skin(skin_id: String):
+	current_skin_id = skin_id
+	if not sprite:
+		return
+	match skin_id:
+		"neon_pulse":
+			sprite.modulate = Color(0.1, 1.0, 0.95)
+		"golden_orb":
+			sprite.modulate = Color(1.0, 0.85, 0.15)
+		_:
+			sprite.modulate = Color(1.0, 1.0, 1.0)
 
 func _physics_process(delta: float):
 	if not is_active:

@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/hamster_game/HamsterAudio.gd" id="2_audio"]
 [ext_resource type="PackedScene" path="res://scenes/hamster_game/HamsterHole.tscn" id="3_hole"]
 [ext_resource type="Script" path="res://scripts/hamster_game/ClockIcon.gd" id="4_clock"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CustomizerModal.tscn" id="5_modal"]
 
 [node name="HamsterGame" type="Node2D"]
 script = ExtResource("1_controller")
@@ -121,6 +122,12 @@ theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 13
 text = "COMBO x2!"
 vertical_alignment = 1
+
+[node name="AnimalButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(40, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "🎨"
 
 [node name="PauseButton" type="Button" parent="HUD/TopBar"]
 custom_minimum_size = Vector2(40, 36)
@@ -276,3 +283,6 @@ text = "RETRY"
 custom_minimum_size = Vector2(120, 42)
 layout_mode = 2
 text = "ARCADE MENU"
+
+[node name="CustomizerModal" parent="HUD" instance=ExtResource("5_modal")]
+

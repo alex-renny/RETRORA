@@ -27,7 +27,9 @@ var shake_intensity: float = 0.0
 @onready var score_label: Label = $HUD/TopBar/ScoreLabel
 @onready var wave_label: Label = $HUD/TopBar/WaveLabel
 @onready var shields_label: Label = $HUD/TopBar/ShieldsLabel
+@onready var hangar_button: Button = $HUD/TopBar/HangarButton
 @onready var pause_button: Button = $HUD/TopBar/PauseButton
+@onready var customizer_modal: Control = $HUD/CustomizerModal
 @onready var banner_label: Label = $HUD/BannerLabel
 @onready var boss_container: VBoxContainer = $HUD/BossContainer
 @onready var boss_bar: ProgressBar = $HUD/BossContainer/BossBar
@@ -56,9 +58,35 @@ func _ready():
 	player.died.connect(_on_player_died)
 	player.health_changed.connect(_on_player_health_changed)
 
+	_setup_customizer()
+
+	if hangar_button:
+		hangar_button.pressed.connect(func(): customizer_modal.show_modal())
 	pause_button.pressed.connect(_toggle_pause)
 	retry_btn.pressed.connect(restart_game)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
+
+func _setup_customizer():
+	if not customizer_modal:
+		return
+	var categories = [
+		{
+			"category_name": "STARSHIPS & JETS",
+			"category_key": "space_jet",
+			"items": [
+				{"id": "starfighter", "name": "Starfighter", "desc": "Balanced twin-laser patrol craft.", "req": "Starter"},
+				{"id": "interceptor", "name": "Interceptor", "desc": "High-speed 3-way spread shooter.", "req": "Clear Wave 3 / 1000 Pts"},
+				{"id": "plasma_cruiser", "name": "Plasma Cruiser", "desc": "Heavy armored hull with 4 HP & plasma bolts.", "req": "Clear Wave 6 / 2500 Pts"},
+				{"id": "phantom_bomber", "name": "Phantom Bomber", "desc": "Stealth fighter with rapid quad lasers.", "req": "Clear Wave 8 / 4500 Pts"},
+				{"id": "golden_valkyrie", "name": "Golden Valkyrie", "desc": "God-tier golden flagship with 5 HP.", "req": "Defeat Boss / 7500 Pts"}
+			]
+		}
+	]
+	customizer_modal.setup("SPACE HANGAR", categories)
+	customizer_modal.item_equipped.connect(func(cat_key, item_id):
+		if cat_key == "space_jet":
+			player.apply_jet(item_id)
+	)
 
 	# Touch buttons wiring
 	btn_left.button_down.connect(func(): touch_vec.x -= 1.0; _update_touch_vec())
@@ -171,6 +199,7 @@ func _trigger_boss_wave():
 func _on_enemy_killed(pts: int):
 	score += pts
 	_update_hud()
+	_check_unlock_milestones()
 	alive_enemies = max(0, alive_enemies - 1)
 
 	if alive_enemies <= 0 and not is_boss_active and not is_wave_transitioning:
@@ -180,11 +209,22 @@ func _on_wave_cleared():
 	is_wave_transitioning = true
 	score += 250 # Wave clear bonus
 	_update_hud()
+	_check_unlock_milestones()
 	_show_banner("WAVE CLEARED! +250", Color(0.2, 1.0, 0.4), 1.5)
 	await get_tree().create_timer(1.6).timeout
 	is_wave_transitioning = false
 	if not is_game_over:
 		_start_wave(current_wave + 1)
+
+func _check_unlock_milestones():
+	if current_wave >= 3 or score >= 1000:
+		SaveManager.unlock("space_jet", "interceptor", "Interceptor")
+	if current_wave >= 6 or score >= 2500:
+		SaveManager.unlock("space_jet", "plasma_cruiser", "Plasma Cruiser")
+	if current_wave >= 8 or score >= 4500:
+		SaveManager.unlock("space_jet", "phantom_bomber", "Phantom Bomber")
+	if is_boss_active or score >= 7500:
+		SaveManager.unlock("space_jet", "golden_valkyrie", "Golden Valkyrie")
 
 func _on_boss_health_changed(current: int, total: int):
 	boss_bar.max_value = total
@@ -192,6 +232,7 @@ func _on_boss_health_changed(current: int, total: int):
 
 func _on_boss_defeated():
 	score += 2500
+	SaveManager.unlock("space_jet", "golden_valkyrie", "Golden Valkyrie")
 	_save_high_score()
 	_update_hud()
 	shake_intensity = 20.0

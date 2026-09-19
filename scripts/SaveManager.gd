@@ -2,6 +2,8 @@ extends Node
 
 # SaveManager singleton handles persistent JSON save data for RETRORA.
 
+signal item_unlocked(category: String, item_id: String, item_name: String)
+
 const SAVE_PATH = "user://save_data.json"
 
 var data: Dictionary = {
@@ -11,7 +13,8 @@ var data: Dictionary = {
 		"sky_hopper": 0,
 		"bounce_quest": 0,
 		"brick_breaker": 0,
-		"space_defender": 0
+		"space_defender": 0,
+		"hamster_game": 0
 	},
 	"settings": {
 		"sound": true,
@@ -19,6 +22,32 @@ var data: Dictionary = {
 		"screen_shake": true,
 		"vibration": true,
 		"crt_filter": false
+	},
+	"unlocks": {
+		"snake_skin": ["classic_green"],
+		"snake_arena": ["classic_field"],
+		"racer_vehicle": ["red_racer"],
+		"racer_road": ["city"],
+		"hopper_bird": ["yellow_finch"],
+		"bounce_ball": ["classic_red"],
+		"space_jet": ["starfighter"],
+		"brick_paddle": ["classic_cyan"],
+		"brick_ball": ["silver_sphere"],
+		"brick_arena": ["midnight_vault"],
+		"hamster_animal": ["hamster"]
+	},
+	"equipped": {
+		"snake_skin": "classic_green",
+		"snake_arena": "classic_field",
+		"racer_vehicle": "red_racer",
+		"racer_road": "city",
+		"hopper_bird": "yellow_finch",
+		"bounce_ball": "classic_red",
+		"space_jet": "starfighter",
+		"brick_paddle": "classic_cyan",
+		"brick_ball": "silver_sphere",
+		"brick_arena": "midnight_vault",
+		"hamster_animal": "hamster"
 	}
 }
 
@@ -42,6 +71,33 @@ func load_data() -> void:
 			if parsed.has("settings") and parsed["settings"] is Dictionary:
 				for k in parsed["settings"]:
 					data["settings"][k] = parsed["settings"][k]
+			if parsed.has("unlocks") and parsed["unlocks"] is Dictionary:
+				for k in parsed["unlocks"]:
+					data["unlocks"][k] = parsed["unlocks"][k]
+			if parsed.has("equipped") and parsed["equipped"] is Dictionary:
+				for k in parsed["equipped"]:
+					data["equipped"][k] = parsed["equipped"][k]
+			# Ensure starter items are always present
+			var starter_defaults = {
+				"snake_skin": "classic_green",
+				"snake_arena": "classic_field",
+				"racer_vehicle": "red_racer",
+				"racer_road": "city",
+				"hopper_bird": "yellow_finch",
+				"bounce_ball": "classic_red",
+				"space_jet": "starfighter",
+				"brick_paddle": "classic_cyan",
+				"brick_ball": "silver_sphere",
+				"brick_arena": "midnight_vault",
+				"hamster_animal": "hamster"
+			}
+			for cat in starter_defaults:
+				if not data["unlocks"].has(cat):
+					data["unlocks"][cat] = [starter_defaults[cat]]
+				elif not (starter_defaults[cat] in data["unlocks"][cat]):
+					data["unlocks"][cat].append(starter_defaults[cat])
+				if not data["equipped"].has(cat) or data["equipped"][cat] == "":
+					data["equipped"][cat] = starter_defaults[cat]
 		else:
 			print("[SaveManager] Warning: corrupted save data, resetting to defaults.")
 			save_data()
@@ -102,4 +158,35 @@ func reset_all_settings() -> void:
 		"vibration": true,
 		"crt_filter": false
 	}
+	save_data()
+
+# --- Progression & Unlocks ---
+
+func is_unlocked(category: String, item_id: String) -> bool:
+	if not data.has("unlocks") or not data["unlocks"].has(category):
+		return false
+	return item_id in data["unlocks"][category]
+
+func unlock(category: String, item_id: String, item_name: String = "") -> bool:
+	if not data.has("unlocks"):
+		data["unlocks"] = {}
+	if not data["unlocks"].has(category):
+		data["unlocks"][category] = []
+	if not (item_id in data["unlocks"][category]):
+		data["unlocks"][category].append(item_id)
+		save_data()
+		var display_name = item_name if item_name != "" else item_id.capitalize()
+		item_unlocked.emit(category, item_id, display_name)
+		return true
+	return false
+
+func get_equipped(category: String, default_id: String) -> String:
+	if not data.has("equipped") or not data["equipped"].has(category):
+		return default_id
+	return data["equipped"].get(category, default_id)
+
+func set_equipped(category: String, item_id: String) -> void:
+	if not data.has("equipped"):
+		data["equipped"] = {}
+	data["equipped"][category] = item_id
 	save_data()

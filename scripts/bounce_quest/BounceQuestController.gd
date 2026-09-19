@@ -28,7 +28,9 @@ var shake_intensity: float = 0.0
 @onready var level_label: Label = $HUD/TopBar/LevelLabel
 @onready var score_label: Label = $HUD/TopBar/ScoreLabel
 @onready var lives_label: Label = $HUD/TopBar/LivesLabel
+@onready var skin_button: Button = $HUD/TopBar/SkinButton
 @onready var pause_button: Button = $HUD/TopBar/PauseButton
+@onready var customizer_modal: Control = $HUD/CustomizerModal
 
 # Dialogs
 @onready var level_clear_panel: Control = $HUD/LevelClearPanel
@@ -50,11 +52,35 @@ func _ready():
 	high_score = SaveManager.get_high_score("bounce_quest")
 	player.died.connect(_on_player_died)
 
+	_setup_customizer()
+
 	# Wire HUD controls
+	if skin_button:
+		skin_button.pressed.connect(func(): customizer_modal.show_modal())
 	pause_button.pressed.connect(_toggle_pause)
 	retry_btn.pressed.connect(restart_quest)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_load_next_level)
+
+func _setup_customizer():
+	if not customizer_modal:
+		return
+	var categories = [
+		{
+			"category_name": "BALL SKINS",
+			"category_key": "bounce_ball",
+			"items": [
+				{"id": "classic_red", "name": "Classic Red", "desc": "The iconic bouncy crimson sphere.", "req": "Starter"},
+				{"id": "neon_pulse", "name": "Neon Pulse", "desc": "Glowing cyan energetic orb.", "req": "Clear Level 2"},
+				{"id": "golden_orb", "name": "Golden Orb", "desc": "Gleaming celestial sphere of mastery.", "req": "Clear Level 4"}
+			]
+		}
+	]
+	customizer_modal.setup("BOUNCE GEAR", categories)
+	customizer_modal.item_equipped.connect(func(cat_key, item_id):
+		if cat_key == "bounce_ball":
+			player.apply_ball_skin(item_id)
+	)
 
 	# Wire Touch buttons
 	btn_left.button_down.connect(func(): player.set_move_dir(-1.0))
@@ -186,9 +212,14 @@ func _on_level_completed():
 	score += 500
 	_update_hud()
 
-	if current_level_idx >= 3:
+	if current_level_idx >= 2:
+		SaveManager.unlock("bounce_ball", "neon_pulse", "Neon Pulse Ball")
+	if current_level_idx >= 4:
+		SaveManager.unlock("bounce_ball", "golden_orb", "Golden Orb Ball")
+
+	if current_level_idx >= 5:
 		# Game Victory!
-		level_clear_title.text = "QUEST COMPLETE!\nYOU BEAT THE GAME!"
+		level_clear_title.text = "QUEST COMPLETE!\nYOU CONQUERED ALL 5 LEVELS!"
 		next_level_btn.text = "PLAY AGAIN"
 		_save_high_score()
 	else:
@@ -198,7 +229,7 @@ func _on_level_completed():
 	level_clear_panel.visible = true
 
 func _load_next_level():
-	if current_level_idx >= 3:
+	if current_level_idx >= 5:
 		restart_quest()
 	else:
 		load_level(current_level_idx + 1)

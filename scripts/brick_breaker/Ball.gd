@@ -8,12 +8,26 @@ const MAX_SPEED: float = 460.0
 var current_speed: float = BASE_SPEED
 var is_stuck_to_paddle: bool = true
 var paddle_ref: Node2D = null
+var current_style_id: String = "silver_sphere"
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 func _ready():
 	add_to_group("balls")
+	apply_ball_style(SaveManager.get_equipped("brick_ball", "silver_sphere"))
+
+func apply_ball_style(style_id: String):
+	current_style_id = style_id
+	if not sprite:
+		return
+	match style_id:
+		"fireball_comet":
+			sprite.modulate = Color(1.0, 0.45, 0.1)
+		"neon_prism":
+			sprite.modulate = Color(0.9, 0.2, 1.0)
+		_:
+			sprite.modulate = Color(1.0, 1.0, 1.0)
 
 func stick_to_paddle(p: Node2D):
 	paddle_ref = p

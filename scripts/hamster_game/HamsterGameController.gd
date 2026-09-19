@@ -30,7 +30,9 @@ var shake_intensity: float = 0.0
 @onready var clock_icon: Control = $HUD/TopBar/TimerContainer/ClockIcon
 @onready var score_label: Label = $HUD/TopBar/ScoreLabel
 @onready var combo_label: Label = $HUD/TopBar/ComboLabel
+@onready var animal_button: Button = $HUD/TopBar/AnimalButton
 @onready var pause_button: Button = $HUD/TopBar/PauseButton
+@onready var customizer_modal: Control = $HUD/CustomizerModal
 
 # Bottom Bar Nodes
 @onready var back_button: Button = $HUD/BottomBar/HBox/BackButton
@@ -51,24 +53,52 @@ func _ready():
 	high_score = SaveManager.get_high_score("hamster_game")
 	_setup_holes()
 	_bind_ui()
+	_setup_customizer()
 	_reset_game()
 
 func _setup_holes():
 	holes.clear()
 	var holes_container = $HolesContainer
+	var equipped_animal = SaveManager.get_equipped("hamster_animal", "hamster")
 	for i in range(9):
 		var hole = holes_container.get_node_or_null("Hole%d" % i)
 		if hole:
 			hole.hole_index = i
 			hole.hole_whacked.connect(_on_hole_whacked)
+			hole.apply_animal_type(equipped_animal)
 			holes.append(hole)
 
 func _bind_ui():
+	if animal_button:
+		animal_button.pressed.connect(func(): customizer_modal.show_modal())
 	pause_button.pressed.connect(_toggle_pause)
 	back_button.pressed.connect(func(): GameManager.go_to_game_select())
 	restart_button.pressed.connect(_reset_game)
 	retry_button.pressed.connect(_reset_game)
 	menu_button.pressed.connect(func(): GameManager.go_to_game_select())
+
+func _setup_customizer():
+	if not customizer_modal:
+		return
+	var categories = [
+		{
+			"category_name": "PETS & ANIMALS",
+			"category_key": "hamster_animal",
+			"items": [
+				{"id": "hamster", "name": "Golden Hamster", "desc": "Chubby cheeks & cute buck teeth.", "req": "Starter"},
+				{"id": "bunny", "name": "Floppy Bunny", "desc": "Tall pink ears & twitchy nose.", "req": "Whack 20 Animals"},
+				{"id": "kitty", "name": "Playful Kitty", "desc": "Pointed cat ears & cute whiskers.", "req": "Whack 50 Animals"},
+				{"id": "panda", "name": "Sleepy Panda", "desc": "Black eye patches & round ears.", "req": "Whack 100 Animals"},
+				{"id": "fox", "name": "Swift Kitsune", "desc": "Amber fur & black-tipped ears.", "req": "Whack 180 Animals"}
+			]
+		}
+	]
+	customizer_modal.setup("BURROW ROSTER", categories)
+	customizer_modal.item_equipped.connect(func(cat_key, item_id):
+		if cat_key == "hamster_animal":
+			for h in holes:
+				h.apply_animal_type(item_id)
+	)
 
 func _reset_game():
 	time_left = GAME_DURATION
@@ -195,7 +225,18 @@ func _on_hole_whacked(hole_idx: int, type: int):
 		_game_over(true)
 		return
 
+	_check_unlock_milestones()
 	_update_hud()
+
+func _check_unlock_milestones():
+	if whacks_count >= 20:
+		SaveManager.unlock("hamster_animal", "bunny", "Floppy Bunny")
+	if whacks_count >= 50:
+		SaveManager.unlock("hamster_animal", "kitty", "Playful Kitty")
+	if whacks_count >= 100:
+		SaveManager.unlock("hamster_animal", "panda", "Sleepy Panda")
+	if whacks_count >= 180:
+		SaveManager.unlock("hamster_animal", "fox", "Swift Kitsune")
 
 func _update_hud():
 	timer_label.text = "%02d" % int(ceil(time_left))

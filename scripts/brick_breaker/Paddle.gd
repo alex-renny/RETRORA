@@ -8,6 +8,8 @@ var move_dir: float = 0.0
 var target_x: float = 180.0
 var wide_timer: float = 0.0
 
+var current_skin_id: String = "classic_cyan"
+
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
@@ -15,6 +17,21 @@ func _ready():
 	position = Vector2(180, 560)
 	target_x = position.x
 	set_wide(false)
+	apply_skin(SaveManager.get_equipped("brick_paddle", "classic_cyan"))
+
+func apply_skin(skin_id: String):
+	current_skin_id = skin_id
+	if not sprite:
+		return
+	match skin_id:
+		"plasma_blade":
+			sprite.modulate = Color(1.0, 0.2, 0.35)
+		"golden_ingot":
+			sprite.modulate = Color(1.0, 0.85, 0.15)
+		"fire_striker":
+			sprite.modulate = Color(1.0, 0.5, 0.05)
+		_:
+			sprite.modulate = Color(0.2, 0.9, 1.0)
 
 func _process(delta: float):
 	# 1. Keyboard Input

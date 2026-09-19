@@ -23,6 +23,7 @@ var shake_intensity: float = 0.0
 @onready var spawner: Node2D = $TrafficSpawner
 @onready var hud: CanvasLayer = $HUD
 @onready var camera: Camera2D = $Camera2D
+@onready var customizer_modal: Control = $HUD/CustomizerModal
 
 func _ready():
 	high_score = SaveManager.get_high_score("retro_racer")
@@ -38,9 +39,50 @@ func _ready():
 	hud.pause_pressed.connect(_toggle_pause)
 	hud.retry_pressed.connect(restart_game)
 	hud.menu_pressed.connect(_go_to_menu)
-	hud.theme_toggle_pressed.connect(_cycle_theme)
+	hud.theme_toggle_pressed.connect(func(): customizer_modal.show_modal())
+
+	_setup_customizer()
+	var initial_road = SaveManager.get_equipped("racer_road", "city")
+	road.set_road_by_id(initial_road)
+	var initial_vehicle = SaveManager.get_equipped("racer_vehicle", "red_racer")
+	player.apply_vehicle(initial_vehicle)
 
 	start_game()
+
+func _setup_customizer():
+	if not customizer_modal:
+		return
+	var categories = [
+		{
+			"category_name": "VEHICLES",
+			"category_key": "racer_vehicle",
+			"items": [
+				{"id": "red_racer", "name": "Red Racer", "desc": "Balanced sports coupe.", "req": "Starter"},
+				{"id": "superbike", "name": "Superbike", "desc": "Nimble & lightning-fast steering.", "req": "Reach 300m"},
+				{"id": "muscle_cruiser", "name": "Muscle Cruiser", "desc": "Heavy beast with chrome blower.", "req": "Reach 700m"},
+				{"id": "turbo_bus", "name": "Turbo Bus", "desc": "Massive arcade city bus.", "req": "Reach 1200m"},
+				{"id": "golden_f1", "name": "Golden F1", "desc": "Aerodynamic gold formula racer.", "req": "Reach 2000m"}
+			]
+		},
+		{
+			"category_name": "ROADS",
+			"category_key": "racer_road",
+			"items": [
+				{"id": "city", "name": "City Asphalt", "desc": "Classic urban expressway.", "req": "Starter"},
+				{"id": "cyber_neon", "name": "Cyber Neon", "desc": "Glowing midnight grid.", "req": "Reach 400m"},
+				{"id": "desert", "name": "Desert Highway", "desc": "Sun-scorched canyon road.", "req": "Reach 900m"},
+				{"id": "sunset_coast", "name": "Sunset Coast", "desc": "Neon twilight highway.", "req": "Reach 1500m"},
+				{"id": "lava_gorge", "name": "Lava Gorge", "desc": "Infernal volcanic pass.", "req": "Reach 2500m"}
+			]
+		}
+	]
+	customizer_modal.setup("GARAGE & HIGHWAYS", categories)
+	customizer_modal.item_equipped.connect(func(cat_key, item_id):
+		if cat_key == "racer_vehicle":
+			player.apply_vehicle(item_id)
+		elif cat_key == "racer_road":
+			road.set_road_by_id(item_id)
+	)
 
 func start_game():
 	distance_traveled = 0.0
@@ -60,9 +102,23 @@ func restart_game():
 func _go_to_menu():
 	GameManager.go_to_main_menu()
 
-func _cycle_theme():
-	current_theme = (current_theme + 1) % 3
-	road.set_theme(current_theme)
+func _check_unlock_milestones():
+	if distance_traveled >= 300:
+		SaveManager.unlock("racer_vehicle", "superbike", "Superbike")
+	if distance_traveled >= 400:
+		SaveManager.unlock("racer_road", "cyber_neon", "Cyber Neon Road")
+	if distance_traveled >= 700:
+		SaveManager.unlock("racer_vehicle", "muscle_cruiser", "Muscle Cruiser")
+	if distance_traveled >= 900:
+		SaveManager.unlock("racer_road", "desert", "Desert Highway")
+	if distance_traveled >= 1200:
+		SaveManager.unlock("racer_vehicle", "turbo_bus", "Turbo Bus")
+	if distance_traveled >= 1500:
+		SaveManager.unlock("racer_road", "sunset_coast", "Sunset Coast")
+	if distance_traveled >= 2000:
+		SaveManager.unlock("racer_vehicle", "golden_f1", "Golden F1")
+	if distance_traveled >= 2500:
+		SaveManager.unlock("racer_road", "lava_gorge", "Lava Gorge")
 
 func _on_steer_left():
 	if current_state == State.RACING:
@@ -121,6 +177,7 @@ func _process(delta: float):
 
 	current_speed = lerp(current_speed, target_speed, 4.0 * delta)
 	distance_traveled += (current_speed * 0.1) * delta
+	_check_unlock_milestones()
 
 	# Update Road & Spawner
 	road.set_speed(current_speed)

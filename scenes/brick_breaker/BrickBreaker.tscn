@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/brick_breaker/BrickBreakerController.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://scenes/brick_breaker/Paddle.tscn" id="2_paddle"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CustomizerModal.tscn" id="3_modal"]
 
 [node name="BrickBreaker" type="Node2D"]
 script = ExtResource("1_controller")
@@ -43,6 +44,11 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
 text = "♥ ♥ ♥"
 horizontal_alignment = 1
+
+[node name="CustomizerButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(36, 28)
+layout_mode = 2
+text = "🎨"
 
 [node name="PauseButton" type="Button" parent="HUD/TopBar"]
 custom_minimum_size = Vector2(36, 28)
@@ -214,3 +220,6 @@ text = "RETRY"
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 text = "MENU"
+
+[node name="CustomizerModal" parent="HUD" instance=ExtResource("3_modal")]
+

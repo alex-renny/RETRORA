@@ -10,6 +10,7 @@ enum HamsterType { NORMAL, GOLDEN, BOMB }
 var hole_index: int = 0
 var current_state: State = State.EMPTY
 var hamster_type: HamsterType = HamsterType.NORMAL
+var current_animal_id: String = "hamster"
 
 var emerge_progress: float = 0.0 # 0.0 = deep inside hole, 1.0 = fully raised
 var peek_timer: float = 0.0
@@ -29,6 +30,11 @@ var float_score_pos_y: float = 0.0
 func _ready():
 	hit_button.pressed.connect(_on_button_pressed)
 	score_label.visible = false
+	apply_animal_type(SaveManager.get_equipped("hamster_animal", "hamster"))
+
+func apply_animal_type(animal_id: String):
+	current_animal_id = animal_id
+	queue_redraw()
 
 func spawn(type: int, duration: float):
 	if current_state != State.EMPTY:
@@ -108,13 +114,13 @@ func _draw():
 	var hole_rect = Rect2(center.x - 30, center.y - 10, 60, 20)
 	_draw_oval(hole_rect, Color(0.22, 0.12, 0.06))
 
-	# 3. Hamster Character (Pops out between back and front mound)
+	# 3. Animal Character (Pops out between back and front mound)
 	if current_state != State.EMPTY:
 		var pop_y = lerp(12.0, -18.0, emerge_progress)
-		var hamster_center = center + Vector2(0, pop_y)
-		_draw_hamster(hamster_center)
+		var animal_center = center + Vector2(0, pop_y)
+		_draw_animal(animal_center)
 
-	# 4. Front Dirt Mound Lip (Occludes bottom of hamster so it emerges naturally)
+	# 4. Front Dirt Mound Lip (Occludes bottom of animal so it emerges naturally)
 	_draw_dirt_mound_front(center)
 
 	# 5. Whacked Effects (Dizzy spinning stars)
@@ -134,7 +140,6 @@ func _draw_oval(rect: Rect2, color: Color):
 	draw_colored_polygon(points, color)
 
 func _draw_dirt_mound_back(c: Vector2):
-	# Organic earthen dirt mound base
 	var mound_pts = PackedVector2Array([
 		c + Vector2(-44, 4),
 		c + Vector2(-36, -8),
@@ -146,13 +151,11 @@ func _draw_dirt_mound_back(c: Vector2):
 		c + Vector2(40, 16),
 		c + Vector2(-40, 16)
 	])
-	draw_colored_polygon(mound_pts, Color(0.85, 0.62, 0.28)) # Sand / Earth
-	# Subtle texture dots / pebble shading
+	draw_colored_polygon(mound_pts, Color(0.85, 0.62, 0.28))
 	draw_circle(c + Vector2(-26, -6), 2.5, Color(0.72, 0.50, 0.20))
 	draw_circle(c + Vector2(28, -5), 2.0, Color(0.72, 0.50, 0.20))
 
 func _draw_dirt_mound_front(c: Vector2):
-	# Front lip covering lower hole and hamster base
 	var front_pts = PackedVector2Array([
 		c + Vector2(-44, 4),
 		c + Vector2(-32, 2),
@@ -176,60 +179,252 @@ func _draw_dirt_mound_front(c: Vector2):
 		c + Vector2(44, 4)
 	]), Color(0.72, 0.50, 0.20), 1.5)
 
+func _draw_animal(pos: Vector2):
+	match current_animal_id:
+		"bunny":
+			_draw_bunny(pos)
+		"kitty":
+			_draw_kitty(pos)
+		"panda":
+			_draw_panda(pos)
+		"fox":
+			_draw_fox(pos)
+		_:
+			_draw_hamster(pos)
+
+	_draw_accessories(pos)
+
 func _draw_hamster(pos: Vector2):
-	var body_col = Color(0.93, 0.66, 0.38) # Tan
-	var inner_ear_col = Color(0.98, 0.58, 0.72) # Pink
+	var body_col = Color(0.93, 0.66, 0.38)
+	var inner_ear_col = Color(0.98, 0.58, 0.72)
 	var belly_col = Color(0.99, 0.94, 0.85)
 
 	if hamster_type == HamsterType.GOLDEN:
 		body_col = Color(1.0, 0.84, 0.15)
 		belly_col = Color(1.0, 0.96, 0.75)
 	elif hamster_type == HamsterType.BOMB:
-		body_col = Color(0.42, 0.40, 0.48) # Dark mischievous
+		body_col = Color(0.42, 0.40, 0.48)
 		belly_col = Color(0.65, 0.60, 0.68)
 
-	# 1. Ears
+	# Ears
 	draw_circle(pos + Vector2(-14, -18), 6.5, body_col)
 	draw_circle(pos + Vector2(14, -18), 6.5, body_col)
 	draw_circle(pos + Vector2(-14, -18), 3.5, inner_ear_col)
 	draw_circle(pos + Vector2(14, -18), 3.5, inner_ear_col)
 
-	# 2. Main Head / Body (Chubby cheeks)
+	# Head / Body
 	var body_rect = Rect2(pos.x - 19, pos.y - 20, 38, 34)
 	_draw_oval(body_rect, body_col)
 
-	# 3. Belly / Snout patch
+	# Snout
 	var belly_rect = Rect2(pos.x - 12, pos.y - 8, 24, 20)
 	_draw_oval(belly_rect, belly_col)
 
-	# 4. Eyes
+	# Eyes
+	_draw_eyes(pos)
+
+	# Cheeks & Whiskers
+	draw_circle(pos + Vector2(-14, -4), 4.0, Color(1.0, 0.5, 0.6, 0.55))
+	draw_circle(pos + Vector2(14, -4), 4.0, Color(1.0, 0.5, 0.6, 0.55))
+	draw_circle(pos + Vector2(0, -6), 2.2, Color(0.25, 0.12, 0.08))
+	_draw_whiskers(pos)
+
+	# Buck Teeth
+	draw_rect(Rect2(pos.x - 2.5, pos.y - 3.5, 2.2, 4.0), Color.WHITE)
+	draw_rect(Rect2(pos.x + 0.3, pos.y - 3.5, 2.2, 4.0), Color.WHITE)
+
+	# Paws
+	draw_circle(pos + Vector2(-10, 6), 3.2, belly_col)
+	draw_circle(pos + Vector2(10, 6), 3.2, belly_col)
+
+func _draw_bunny(pos: Vector2):
+	var body_col = Color(0.96, 0.96, 0.98)
+	var inner_ear_col = Color(1.0, 0.68, 0.78)
+	if hamster_type == HamsterType.GOLDEN:
+		body_col = Color(1.0, 0.88, 0.25)
+	elif hamster_type == HamsterType.BOMB:
+		body_col = Color(0.38, 0.38, 0.45)
+
+	# Tall Bunny Ears
+	_draw_oval(Rect2(pos.x - 15, pos.y - 36, 10, 24), body_col)
+	_draw_oval(Rect2(pos.x + 5, pos.y - 36, 10, 24), body_col)
+	_draw_oval(Rect2(pos.x - 13, pos.y - 34, 6, 18), inner_ear_col)
+	_draw_oval(Rect2(pos.x + 7, pos.y - 34, 6, 18), inner_ear_col)
+
+	# Head
+	_draw_oval(Rect2(pos.x - 18, pos.y - 18, 36, 32), body_col)
+	_draw_eyes(pos)
+
+	# Pink Nose & Whiskers
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-2.5, -6),
+		pos + Vector2(2.5, -6),
+		pos + Vector2(0, -3.5)
+	]), PackedColorArray([inner_ear_col]))
+	_draw_whiskers(pos)
+	draw_circle(pos + Vector2(-13, -3), 3.5, Color(1.0, 0.5, 0.6, 0.5))
+	draw_circle(pos + Vector2(13, -3), 3.5, Color(1.0, 0.5, 0.6, 0.5))
+
+	# Fluffy Paws
+	draw_circle(pos + Vector2(-9, 6), 3.5, Color.WHITE)
+	draw_circle(pos + Vector2(9, 6), 3.5, Color.WHITE)
+
+func _draw_kitty(pos: Vector2):
+	var body_col = Color(0.96, 0.68, 0.36)
+	var inner_ear_col = Color(0.98, 0.6, 0.7)
+	if hamster_type == HamsterType.GOLDEN:
+		body_col = Color(1.0, 0.84, 0.15)
+	elif hamster_type == HamsterType.BOMB:
+		body_col = Color(0.4, 0.38, 0.46)
+
+	# Pointed Cat Ears
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-18, -12),
+		pos + Vector2(-12, -26),
+		pos + Vector2(-5, -15)
+	]), PackedColorArray([body_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(5, -15),
+		pos + Vector2(12, -26),
+		pos + Vector2(18, -12)
+	]), PackedColorArray([body_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-15, -13),
+		pos + Vector2(-12, -23),
+		pos + Vector2(-7, -15)
+	]), PackedColorArray([inner_ear_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(7, -15),
+		pos + Vector2(12, -23),
+		pos + Vector2(15, -13)
+	]), PackedColorArray([inner_ear_col]))
+
+	# Head
+	_draw_oval(Rect2(pos.x - 18, pos.y - 18, 36, 32), body_col)
+	_draw_eyes(pos)
+
+	# Kitty Snout & Whiskers
+	draw_circle(pos + Vector2(0, -6), 2.0, inner_ear_col)
+	_draw_whiskers(pos)
+	# Cat smile 'w'
+	draw_line(pos + Vector2(-3, -3), pos + Vector2(0, -4), Color(0.3, 0.2, 0.2), 1.2)
+	draw_line(pos + Vector2(0, -4), pos + Vector2(3, -3), Color(0.3, 0.2, 0.2), 1.2)
+
+	# Paws
+	draw_circle(pos + Vector2(-9, 6), 3.2, Color(0.99, 0.94, 0.88))
+	draw_circle(pos + Vector2(9, 6), 3.2, Color(0.99, 0.94, 0.88))
+
+func _draw_panda(pos: Vector2):
+	var body_col = Color(0.98, 0.98, 1.0)
+	var black_col = Color(0.12, 0.12, 0.15)
+	if hamster_type == HamsterType.GOLDEN:
+		body_col = Color(1.0, 0.92, 0.5)
+		black_col = Color(0.8, 0.6, 0.1)
+	elif hamster_type == HamsterType.BOMB:
+		body_col = Color(0.5, 0.5, 0.58)
+		black_col = Color(0.2, 0.2, 0.25)
+
+	# Round Black Ears
+	draw_circle(pos + Vector2(-14, -17), 6.5, black_col)
+	draw_circle(pos + Vector2(14, -17), 6.5, black_col)
+
+	# White Head
+	_draw_oval(Rect2(pos.x - 18, pos.y - 18, 36, 32), body_col)
+
+	# Black Eye Patches
+	_draw_oval(Rect2(pos.x - 13, pos.y - 14, 10, 8), black_col)
+	_draw_oval(Rect2(pos.x + 3, pos.y - 14, 10, 8), black_col)
+
+	# Eyes
 	if current_state == State.WHACKED:
-		# Dizzy "X" eyes
 		_draw_x_eye(pos + Vector2(-8, -10))
 		_draw_x_eye(pos + Vector2(8, -10))
 	else:
-		# Cute round black eyes with white gleam
+		draw_circle(pos + Vector2(-8, -10), 2.0, Color.WHITE)
+		draw_circle(pos + Vector2(8, -10), 2.0, Color.WHITE)
+		draw_circle(pos + Vector2(-8, -10), 1.0, Color.BLACK)
+		draw_circle(pos + Vector2(8, -10), 1.0, Color.BLACK)
+
+	# Panda Nose
+	_draw_oval(Rect2(pos.x - 3, pos.y - 6, 6, 4), black_col)
+
+	# Black Paws
+	draw_circle(pos + Vector2(-10, 6), 3.5, black_col)
+	draw_circle(pos + Vector2(10, 6), 3.5, black_col)
+
+func _draw_fox(pos: Vector2):
+	var body_col = Color(0.92, 0.45, 0.15)
+	var white_col = Color(0.98, 0.98, 1.0)
+	var black_col = Color(0.15, 0.15, 0.18)
+	if hamster_type == HamsterType.GOLDEN:
+		body_col = Color(1.0, 0.82, 0.1)
+	elif hamster_type == HamsterType.BOMB:
+		body_col = Color(0.4, 0.35, 0.48)
+
+	# Pointed Fox Ears
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-17, -12),
+		pos + Vector2(-12, -26),
+		pos + Vector2(-5, -15)
+	]), PackedColorArray([black_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(5, -15),
+		pos + Vector2(12, -26),
+		pos + Vector2(17, -12)
+	]), PackedColorArray([black_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-14, -13),
+		pos + Vector2(-12, -21),
+		pos + Vector2(-7, -15)
+	]), PackedColorArray([white_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(7, -15),
+		pos + Vector2(12, -21),
+		pos + Vector2(14, -13)
+	]), PackedColorArray([white_col]))
+
+	# Head
+	_draw_oval(Rect2(pos.x - 18, pos.y - 18, 36, 32), body_col)
+
+	# White Cheek / Muzzle Patches
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-15, -4),
+		pos + Vector2(-3, -6),
+		pos + Vector2(0, 1),
+		pos + Vector2(-12, 4)
+	]), PackedColorArray([white_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(15, -4),
+		pos + Vector2(3, -6),
+		pos + Vector2(0, 1),
+		pos + Vector2(12, 4)
+	]), PackedColorArray([white_col]))
+
+	_draw_eyes(pos)
+	draw_circle(pos + Vector2(0, -4), 2.2, black_col)
+	_draw_whiskers(pos)
+
+	# Paws
+	draw_circle(pos + Vector2(-9, 6), 3.2, black_col)
+	draw_circle(pos + Vector2(9, 6), 3.2, black_col)
+
+func _draw_eyes(pos: Vector2):
+	if current_state == State.WHACKED:
+		_draw_x_eye(pos + Vector2(-8, -10))
+		_draw_x_eye(pos + Vector2(8, -10))
+	else:
 		draw_circle(pos + Vector2(-8, -10), 3.5, Color(0.08, 0.08, 0.08))
 		draw_circle(pos + Vector2(8, -10), 3.5, Color(0.08, 0.08, 0.08))
 		draw_circle(pos + Vector2(-7, -11), 1.2, Color.WHITE)
 		draw_circle(pos + Vector2(9, -11), 1.2, Color.WHITE)
 
-	# 5. Rosy Cheeks
-	draw_circle(pos + Vector2(-14, -4), 4.0, Color(1.0, 0.5, 0.6, 0.55))
-	draw_circle(pos + Vector2(14, -4), 4.0, Color(1.0, 0.5, 0.6, 0.55))
-
-	# 6. Nose & Cute Whiskers
-	draw_circle(pos + Vector2(0, -6), 2.2, Color(0.25, 0.12, 0.08))
+func _draw_whiskers(pos: Vector2):
 	draw_line(pos + Vector2(-4, -4), pos + Vector2(-17, -5), Color(0.35, 0.25, 0.2), 1.0)
 	draw_line(pos + Vector2(-4, -2), pos + Vector2(-16, 0), Color(0.35, 0.25, 0.2), 1.0)
 	draw_line(pos + Vector2(4, -4), pos + Vector2(17, -5), Color(0.35, 0.25, 0.2), 1.0)
 	draw_line(pos + Vector2(4, -2), pos + Vector2(16, 0), Color(0.35, 0.25, 0.2), 1.0)
 
-	# 7. Two Cute Buck Teeth!
-	draw_rect(Rect2(pos.x - 2.5, pos.y - 3.5, 2.2, 4.0), Color.WHITE)
-	draw_rect(Rect2(pos.x + 0.3, pos.y - 3.5, 2.2, 4.0), Color.WHITE)
-
-	# 8. Golden Crown or Bomb Hat
+func _draw_accessories(pos: Vector2):
 	if hamster_type == HamsterType.GOLDEN:
 		var crown_pts = PackedVector2Array([
 			pos + Vector2(-8, -22),
@@ -241,16 +436,10 @@ func _draw_hamster(pos: Vector2):
 			pos + Vector2(8, -22)
 		])
 		draw_colored_polygon(crown_pts, Color(1.0, 0.85, 0.0))
-		draw_circle(pos + Vector2(0, -25), 1.5, Color(0.95, 0.2, 0.2)) # Ruby gem
+		draw_circle(pos + Vector2(0, -25), 1.5, Color(0.95, 0.2, 0.2))
 	elif hamster_type == HamsterType.BOMB:
-		# Bomb fuse on head
 		draw_line(pos + Vector2(0, -22), pos + Vector2(4, -28), Color(0.3, 0.3, 0.3), 1.5)
-		# Spark
 		draw_circle(pos + Vector2(4, -28), 2.5, Color(1.0, 0.3, 0.1))
-
-	# 9. Cute Tiny Paws resting on the dirt rim
-	draw_circle(pos + Vector2(-10, 6), 3.2, belly_col)
-	draw_circle(pos + Vector2(10, 6), 3.2, belly_col)
 
 func _draw_x_eye(p: Vector2):
 	var sz = 2.8

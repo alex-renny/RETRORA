@@ -31,7 +31,9 @@ var shake_intensity: float = 0.0
 @onready var hud: CanvasLayer = $HUD
 @onready var score_label: Label = $HUD/ScoreLabel
 @onready var ready_prompt: VBoxContainer = $HUD/ReadyPrompt
+@onready var bird_button: Button = $HUD/BirdButton
 @onready var pause_button: Button = $HUD/PauseButton
+@onready var customizer_modal: Control = $HUD/CustomizerModal
 @onready var game_over_panel: Control = $HUD/GameOverPanel
 @onready var final_score_label: Label = $HUD/GameOverPanel/VBox/FinalScoreLabel
 @onready var final_best_label: Label = $HUD/GameOverPanel/VBox/FinalBestLabel
@@ -44,11 +46,37 @@ func _ready():
 	player.add_to_group("player")
 	player.crashed.connect(_on_player_crashed)
 
+	_setup_customizer()
+
+	if bird_button:
+		bird_button.pressed.connect(func(): customizer_modal.show_modal())
 	pause_button.pressed.connect(_toggle_pause)
 	retry_button.pressed.connect(reset_game)
 	menu_button.pressed.connect(func(): GameManager.go_to_game_select())
 
 	reset_game()
+
+func _setup_customizer():
+	if not customizer_modal:
+		return
+	var categories = [
+		{
+			"category_name": "BIRDS & FLYERS",
+			"category_key": "hopper_bird",
+			"items": [
+				{"id": "yellow_finch", "name": "Yellow Finch", "desc": "Classic cheerful golden finch.", "req": "Starter"},
+				{"id": "blue_falcon", "name": "Blue Falcon", "desc": "Supersonic raptor with cobalt wings.", "req": "Pass 10 Pipes"},
+				{"id": "cyber_drone", "name": "Cyber Drone", "desc": "Hover drone with glowing scanner.", "req": "Pass 25 Pipes"},
+				{"id": "pixel_phoenix", "name": "Pixel Phoenix", "desc": "Legendary firebird with ember crest.", "req": "Pass 50 Pipes"},
+				{"id": "midnight_bat", "name": "Midnight Bat", "desc": "Nocturnal flyer with ruby eyes.", "req": "Pass 80 Pipes"}
+			]
+		}
+	]
+	customizer_modal.setup("BIRD ROSTER", categories)
+	customizer_modal.item_equipped.connect(func(cat_key, item_id):
+		if cat_key == "hopper_bird":
+			player.apply_bird(item_id)
+	)
 
 func reset_game():
 	current_state = State.READY
@@ -124,9 +152,21 @@ func _on_passed_pipe():
 	score += 1
 	score_label.text = str(score)
 
+	_check_unlock_milestones()
+
 	# Ramp difficulty every 5 points
 	current_speed = min(MAX_SPEED, BASE_SPEED + (score / 5.0) * 5.0)
 	spawn_interval = max(1.4, 2.0 - (current_speed - BASE_SPEED) / 200.0)
+
+func _check_unlock_milestones():
+	if score >= 10:
+		SaveManager.unlock("hopper_bird", "blue_falcon", "Blue Falcon")
+	if score >= 25:
+		SaveManager.unlock("hopper_bird", "cyber_drone", "Cyber Drone")
+	if score >= 50:
+		SaveManager.unlock("hopper_bird", "pixel_phoenix", "Pixel Phoenix")
+	if score >= 80:
+		SaveManager.unlock("hopper_bird", "midnight_bat", "Midnight Bat")
 
 func _on_player_crashed():
 	current_state = State.GAMEOVER

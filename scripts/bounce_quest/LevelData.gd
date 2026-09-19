@@ -128,5 +128,102 @@ static func get_level(level_idx: int) -> Dictionary:
 					Vector2(1050, 340)
 				]
 			}
+		4:
+			return {
+				"name": "Level 4: Neon Gravity Lab",
+				"spawn": Vector2(60, 480),
+				"portal": Vector2(1360, 200),
+				"width": 1450.0,
+				"platforms": [
+					# Entrance deck
+					Rect2(0, 520, 160, 50),
+					# Bouncy floating energy pads
+					Rect2(210, 460, 75, 20),
+					Rect2(330, 390, 75, 20),
+					Rect2(450, 320, 75, 20),
+					Rect2(580, 260, 90, 20),
+					# Long high suspended gantry
+					Rect2(720, 220, 140, 20),
+					Rect2(910, 260, 80, 20),
+					Rect2(1040, 330, 80, 20),
+					# Stepping blocks over energy abyss
+					Rect2(1170, 260, 80, 20),
+					# Portal platform
+					Rect2(1300, 240, 140, 30)
+				],
+				"spikes": [
+					Vector2(250, 560), Vector2(300, 560), Vector2(350, 560),
+					Vector2(400, 560), Vector2(450, 560), Vector2(500, 560),
+					Vector2(600, 560), Vector2(700, 560), Vector2(800, 560),
+					Vector2(900, 560), Vector2(1000, 560), Vector2(1100, 560),
+					Vector2(780, 204), # Trap spike on the high gantry
+					Vector2(1070, 314)
+				],
+				"crystals": [
+					Vector2(245, 420),
+					Vector2(365, 350),
+					Vector2(485, 280),
+					Vector2(625, 220),
+					Vector2(750, 180),
+					Vector2(830, 180),
+					Vector2(950, 220),
+					Vector2(1080, 290),
+					Vector2(1210, 220)
+				]
+			}
+		5:
+			return {
+				"name": "Level 5: Magma Citadel",
+				"spawn": Vector2(60, 490),
+				"portal": Vector2(1480, 160),
+				"width": 1600.0,
+				"platforms": [
+					# Obsidian launchpad
+					Rect2(0, 530, 150, 50),
+					# Volcanic rock staircase
+					Rect2(190, 470, 70, 20),
+					Rect2(300, 410, 70, 20),
+					Rect2(410, 350, 70, 20),
+					Rect2(530, 290, 80, 20),
+					# Precarious floating monoliths over lava chasm
+					Rect2(660, 340, 70, 20),
+					Rect2(780, 280, 70, 20),
+					Rect2(900, 220, 80, 20),
+					Rect2(1030, 280, 70, 20),
+					Rect2(1150, 340, 70, 20),
+					# High citadel wall ascent
+					Rect2(1270, 280, 70, 20),
+					Rect2(1370, 210, 70, 20),
+					Rect2(1440, 190, 150, 30)
+				],
+				"spikes": [
+					# Endless lava pit spikes below
+					Vector2(200, 580), Vector2(250, 580), Vector2(300, 580),
+					Vector2(350, 580), Vector2(400, 580), Vector2(450, 580),
+					Vector2(500, 580), Vector2(550, 580), Vector2(600, 580),
+					Vector2(650, 580), Vector2(700, 580), Vector2(750, 580),
+					Vector2(800, 580), Vector2(850, 580), Vector2(900, 580),
+					Vector2(950, 580), Vector2(1000, 580), Vector2(1050, 580),
+					Vector2(1100, 580), Vector2(1150, 580), Vector2(1200, 580),
+					Vector2(1250, 580), Vector2(1300, 580),
+					# Monolith traps
+					Vector2(560, 274),
+					Vector2(930, 204),
+					Vector2(1180, 324)
+				],
+				"crystals": [
+					Vector2(225, 430),
+					Vector2(335, 370),
+					Vector2(445, 310),
+					Vector2(570, 250),
+					Vector2(695, 300),
+					Vector2(815, 240),
+					Vector2(940, 180),
+					Vector2(1065, 240),
+					Vector2(1185, 300),
+					Vector2(1305, 240),
+					Vector2(1405, 170)
+				]
+			}
 		_:
 			return get_level(1)

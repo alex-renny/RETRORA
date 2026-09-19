@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/space_defender/SpaceDefenderController.gd" id="1_controller"]
 [ext_resource type="Script" path="res://scripts/space_defender/PlayerShip.gd" id="2_player"]
 [ext_resource type="Texture2D" path="res://assets/space_defender/player_ship.png" id="3_ship_tex"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CustomizerModal.tscn" id="4_modal"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 11.0
@@ -53,6 +54,11 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
 text = "♥ ♥ ♥"
 horizontal_alignment = 1
+
+[node name="HangarButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+text = "🎨"
 
 [node name="PauseButton" type="Button" parent="HUD/TopBar"]
 custom_minimum_size = Vector2(36, 32)
@@ -235,3 +241,6 @@ text = "RETRY"
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 text = "MENU"
+
+[node name="CustomizerModal" parent="HUD" instance=ExtResource("4_modal")]
+

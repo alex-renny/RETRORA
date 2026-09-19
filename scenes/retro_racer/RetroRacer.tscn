@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/retro_racer/Car.gd" id="4_car"]
 [ext_resource type="Texture2D" path="res://assets/retro_racer/player_car.png" id="5_player_tex"]
 [ext_resource type="Script" path="res://scripts/retro_racer/RetroRacerHUD.gd" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CustomizerModal.tscn" id="7_modal"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_car"]
 size = Vector2(18, 38)
@@ -231,3 +232,6 @@ text = "RETRY"
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 text = "MENU"
+
+[node name="CustomizerModal" parent="HUD" instance=ExtResource("7_modal")]
+

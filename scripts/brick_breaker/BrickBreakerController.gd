@@ -23,11 +23,15 @@ var active_balls: Array = []
 @onready var powerups_container: Node2D = $PowerUps
 @onready var balls_container: Node2D = $Balls
 
+var current_arena_id: String = "midnight_vault"
+
 # HUD Nodes
 @onready var score_label: Label = $HUD/TopBar/ScoreLabel
 @onready var level_label: Label = $HUD/TopBar/LevelLabel
 @onready var lives_label: Label = $HUD/TopBar/LivesLabel
+@onready var customizer_btn: Button = $HUD/TopBar/CustomizerButton
 @onready var pause_button: Button = $HUD/TopBar/PauseButton
+@onready var customizer_modal: Control = $HUD/CustomizerModal
 @onready var launch_prompt: Label = $HUD/LaunchPrompt
 
 # Dialogs
@@ -49,7 +53,12 @@ var active_balls: Array = []
 
 func _ready():
 	high_score = SaveManager.get_high_score("brick_breaker")
+	current_arena_id = SaveManager.get_equipped("brick_arena", "midnight_vault")
 
+	_setup_customizer()
+
+	if customizer_btn:
+		customizer_btn.pressed.connect(func(): customizer_modal.show_modal())
 	pause_button.pressed.connect(_toggle_pause)
 	retry_btn.pressed.connect(restart_game)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
@@ -62,6 +71,52 @@ func _ready():
 	btn_launch.pressed.connect(_try_launch_ball)
 
 	restart_game()
+
+func _setup_customizer():
+	if not customizer_modal:
+		return
+	var categories = [
+		{
+			"category_name": "PADDLES",
+			"category_key": "brick_paddle",
+			"items": [
+				{"id": "classic_cyan", "name": "Classic Cyan", "desc": "Balanced neon striker paddle.", "req": "Starter"},
+				{"id": "plasma_blade", "name": "Plasma Blade", "desc": "Crimson blade with wide deflection.", "req": "Reach 600 Pts"},
+				{"id": "golden_ingot", "name": "Golden Ingot", "desc": "Gilded auric bar with high bounce force.", "req": "Reach 1500 Pts"},
+				{"id": "fire_striker", "name": "Fire Striker", "desc": "Blazing solar striker with rapid rebound.", "req": "Reach 3000 Pts"}
+			]
+		},
+		{
+			"category_name": "BALLS",
+			"category_key": "brick_ball",
+			"items": [
+				{"id": "silver_sphere", "name": "Silver Sphere", "desc": "Polished chrome steel ball.", "req": "Starter"},
+				{"id": "fireball_comet", "name": "Fireball Comet", "desc": "Flaming ember projectile.", "req": "Reach 1000 Pts"},
+				{"id": "neon_prism", "name": "Neon Prism", "desc": "Prismatic crystal energy orb.", "req": "Reach 2200 Pts"}
+			]
+		},
+		{
+			"category_name": "ARENAS",
+			"category_key": "brick_arena",
+			"items": [
+				{"id": "midnight_vault", "name": "Midnight Vault", "desc": "Dark indigo cyberpunk arena.", "req": "Starter"},
+				{"id": "emerald_matrix", "name": "Emerald Matrix", "desc": "Phosphor green arcade grid.", "req": "Reach 800 Pts"},
+				{"id": "crimson_chasm", "name": "Crimson Chasm", "desc": "Molten volcanic neon hall.", "req": "Reach 1800 Pts"}
+			]
+		}
+	]
+	customizer_modal.setup("BRICK GEAR & ARENAS", categories)
+	customizer_modal.item_equipped.connect(func(cat_key, item_id):
+		if cat_key == "brick_paddle":
+			paddle.apply_skin(item_id)
+		elif cat_key == "brick_ball":
+			for b in active_balls:
+				if is_instance_valid(b) and b.has_method("apply_ball_style"):
+					b.apply_ball_style(item_id)
+		elif cat_key == "brick_arena":
+			current_arena_id = item_id
+			queue_redraw()
+	)
 
 func restart_game():
 	score = 0
@@ -130,6 +185,7 @@ func _on_brick_destroyed(pts: int, b_type: int, pos: Vector2):
 	var combo_bonus = int(combo_count * 10)
 	score += pts + combo_bonus
 	_update_hud()
+	_check_unlock_milestones()
 
 	# Roll for power-up drop
 	if b_type == 2: # Bonus brick -> 100% drop
@@ -254,10 +310,36 @@ func _toggle_pause():
 					b.set_physics_process(true)
 		)
 
+func _check_unlock_milestones():
+	if score >= 600:
+		SaveManager.unlock("brick_paddle", "plasma_blade", "Plasma Blade")
+	if score >= 800:
+		SaveManager.unlock("brick_arena", "emerald_matrix", "Emerald Matrix")
+	if score >= 1000:
+		SaveManager.unlock("brick_ball", "fireball_comet", "Fireball Comet")
+	if score >= 1500:
+		SaveManager.unlock("brick_paddle", "golden_ingot", "Golden Ingot")
+	if score >= 1800:
+		SaveManager.unlock("brick_arena", "crimson_chasm", "Crimson Chasm")
+	if score >= 2200:
+		SaveManager.unlock("brick_ball", "neon_prism", "Neon Prism")
+	if score >= 3000:
+		SaveManager.unlock("brick_paddle", "fire_striker", "Fire Striker")
+
 func _draw():
-	# Draw Retro Outer Walls
 	var wall_color = Color("1e293b")
 	var border_color = Color("38bdf8")
+
+	match current_arena_id:
+		"emerald_matrix":
+			wall_color = Color(0.04, 0.12, 0.08)
+			border_color = Color(0.1, 0.85, 0.45)
+		"crimson_chasm":
+			wall_color = Color(0.15, 0.04, 0.05)
+			border_color = Color(1.0, 0.25, 0.3)
+		_: # midnight_vault
+			wall_color = Color("1e293b")
+			border_color = Color("38bdf8")
 
 	# Top Wall
 	draw_rect(Rect2(0, 0, 360, 42), wall_color)
