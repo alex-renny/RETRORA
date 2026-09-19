@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   build:
     name: Build and Release Retrora APK
@@ -23,8 +26,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Generate Android Debug Keystore
         run: |
@@ -51,9 +55,10 @@ jobs:
           wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz
           unzip -q Godot_v${GODOT_VERSION}_export_templates.tpz
           
-          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/4.7.2.stable"
-          mkdir -p "$TEMPLATE_DIR"
-          mv templates/* "$TEMPLATE_DIR/"
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          cp -r templates/* "$HOME/.local/share/godot/export_templates/4.7.2.stable/"
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable.official"
+          cp -r templates/* "$HOME/.local/share/godot/export_templates/4.7.2.stable.official/"
 
           echo "Configuring Godot Editor Settings for Android SDK..."
           CONFIG_DIR="$HOME/.config/godot"
@@ -66,6 +71,7 @@ jobs:
           export/android/debug_keystore = "$GITHUB_WORKSPACE/debug.keystore"
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_pass = "android"
+          export/android/force_system_user = false
           EOF
 
       - name: Export Retrora APK
