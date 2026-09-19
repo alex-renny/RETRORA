@@ -1,0 +1,278 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/hamster_game/HamsterGameController.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/hamster_game/HamsterAudio.gd" id="2_audio"]
+[ext_resource type="PackedScene" path="res://scenes/hamster_game/HamsterHole.tscn" id="3_hole"]
+[ext_resource type="Script" path="res://scripts/hamster_game/ClockIcon.gd" id="4_clock"]
+
+[node name="HamsterGame" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="HamsterAudio" type="Node" parent="."]
+script = ExtResource("2_audio")
+
+[node name="HolesContainer" type="Node2D" parent="."]
+
+[node name="Hole0" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 18.0
+offset_top = 116.0
+offset_right = 114.0
+offset_bottom = 212.0
+
+[node name="Hole1" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 132.0
+offset_top = 116.0
+offset_right = 228.0
+offset_bottom = 212.0
+
+[node name="Hole2" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 246.0
+offset_top = 116.0
+offset_right = 342.0
+offset_bottom = 212.0
+
+[node name="Hole3" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 18.0
+offset_top = 248.0
+offset_right = 114.0
+offset_bottom = 344.0
+
+[node name="Hole4" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 132.0
+offset_top = 248.0
+offset_right = 228.0
+offset_bottom = 344.0
+
+[node name="Hole5" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 246.0
+offset_top = 248.0
+offset_right = 342.0
+offset_bottom = 344.0
+
+[node name="Hole6" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 18.0
+offset_top = 380.0
+offset_right = 114.0
+offset_bottom = 476.0
+
+[node name="Hole7" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 132.0
+offset_top = 380.0
+offset_right = 228.0
+offset_bottom = 476.0
+
+[node name="Hole8" parent="HolesContainer" instance=ExtResource("3_hole")]
+offset_left = 246.0
+offset_top = 380.0
+offset_right = 342.0
+offset_bottom = 476.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="HBoxContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = -12.0
+offset_bottom = 54.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+text = "SCORE: 00000"
+vertical_alignment = 1
+
+[node name="TimerContainer" type="HBoxContainer" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ClockIcon" type="Control" parent="HUD/TopBar/TimerContainer"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("4_clock")
+
+[node name="TimerLabel" type="Label" parent="HUD/TopBar/TimerContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 28
+text = "60"
+vertical_alignment = 1
+
+[node name="ComboLabel" type="Label" parent="HUD/TopBar"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 13
+text = "COMBO x2!"
+vertical_alignment = 1
+
+[node name="PauseButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(40, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "||"
+
+[node name="BottomBar" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -68.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Background" type="ColorRect" parent="HUD/BottomBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18, 0.72, 0.40, 0.92)
+
+[node name="HBox" type="HBoxContainer" parent="HUD/BottomBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="BackButton" type="Button" parent="HUD/BottomBar/HBox"]
+custom_minimum_size = Vector2(56, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "◀"
+
+[node name="Spacer1" type="Control" parent="HUD/BottomBar/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CountBadge" type="HBoxContainer" parent="HUD/BottomBar/HBox"]
+layout_mode = 2
+size_flags_vertical = 4
+alignment = 1
+
+[node name="CountIcon" type="Label" parent="HUD/BottomBar/HBox/CountBadge"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🐹"
+
+[node name="CountLabel" type="Label" parent="HUD/BottomBar/HBox/CountBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="Spacer2" type="Control" parent="HUD/BottomBar/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RestartButton" type="Button" parent="HUD/BottomBar/HBox"]
+custom_minimum_size = Vector2(56, 44)
+layout_mode = 2
+size_flags_vertical = 4
+text = "⟳"
+
+[node name="GameOverPanel" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -140.0
+offset_right = 140.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 28
+text = "TIME'S UP!"
+horizontal_alignment = 1
+
+[node name="StarsLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "★★★ PERFECT!"
+horizontal_alignment = 1
+
+[node name="NewRecordLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "★ NEW RECORD! ★"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "FINAL SCORE: 0"
+horizontal_alignment = 1
+
+[node name="FinalWhacksLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "HAMSTERS WHACKED: 0"
+horizontal_alignment = 1
+
+[node name="FinalBestLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+text = "BEST RECORD: 0 pts"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+
+[node name="BtnContainer" type="HBoxContainer" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(100, 42)
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+text = "ARCADE MENU"

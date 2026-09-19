@@ -72,3 +72,6 @@ func go_to_space_defender():
 
 func go_to_brick_breaker():
 	change_scene("res://scenes/brick_breaker/BrickBreaker.tscn")
+
+func go_to_hamster_game():
+	change_scene("res://scenes/hamster_game/HamsterGame.tscn")

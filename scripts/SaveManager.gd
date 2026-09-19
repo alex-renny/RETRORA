@@ -76,7 +76,8 @@ func reset_all_high_scores() -> void:
 		"sky_hopper": 0,
 		"bounce_quest": 0,
 		"brick_breaker": 0,
-		"space_defender": 0
+		"space_defender": 0,
+		"hamster_game": 0
 	}
 	save_data()
 

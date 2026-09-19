@@ -21,7 +21,8 @@ func _populate_scores():
 		{"id": "sky_hopper", "title": "Sky Hopper", "unit": "pts"},
 		{"id": "bounce_quest", "title": "Bounce Quest", "unit": "pts"},
 		{"id": "brick_breaker", "title": "Brick Breaker", "unit": "pts"},
-		{"id": "space_defender", "title": "Space Defender", "unit": "pts"}
+		{"id": "space_defender", "title": "Space Defender", "unit": "pts"},
+		{"id": "hamster_game", "title": "Hamster Game", "unit": "pts"}
 	]
 
 	for g in games:

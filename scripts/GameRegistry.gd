@@ -47,6 +47,13 @@ func _ready():
 		"high_score_key": "space_defender",
 		"status": "PLAYABLE"
 	})
+	register_game("hamster_game", {
+		"title": "Hamster Game",
+		"scene": "res://scenes/hamster_game/HamsterGame.tscn",
+		"description": "Fast-paced 3x3 watch classic! Whack the cute hamsters before the 60s timer expires.",
+		"high_score_key": "hamster_game",
+		"status": "PLAYABLE"
+	})
 
 func register_game(id: String, info: Dictionary) -> void:
 	games[id] = info
