@@ -1,0 +1,11 @@
+# Godot generated files
+.import/
+.export/
+.project.godot
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+bin/

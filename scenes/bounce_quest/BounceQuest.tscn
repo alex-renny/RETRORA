@@ -1,0 +1,214 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/bounce_quest/BounceQuestController.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/bounce_quest/Player.gd" id="2_player"]
+[ext_resource type="Texture2D" path="res://assets/bounce_quest/ball.png" id="3_ball_tex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ball"]
+radius = 9.5
+
+[node name="BounceQuest" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(180, 320)
+
+[node name="Platforms" type="Node2D" parent="."]
+
+[node name="Hazards" type="Node2D" parent="."]
+
+[node name="Crystals" type="Node2D" parent="."]
+
+[node name="Portals" type="Node2D" parent="."]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(60, 480)
+script = ExtResource("2_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = ExtResource("3_ball_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("CircleShape2D_ball")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="HBoxContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 44.0
+grow_horizontal = 2
+
+[node name="LevelLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "LEVEL 1"
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SCORE: 0"
+horizontal_alignment = 1
+
+[node name="LivesLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+text = "♥ ♥ ♥"
+horizontal_alignment = 1
+
+[node name="PauseButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+text = "||"
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="LeftButton" type="Button" parent="HUD/TouchControls"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -80.0
+offset_right = 80.0
+offset_bottom = -16.0
+grow_vertical = 0
+text = "◀"
+
+[node name="RightButton" type="Button" parent="HUD/TouchControls"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 96.0
+offset_top = -80.0
+offset_right = 160.0
+offset_bottom = -16.0
+grow_vertical = 0
+text = "▶"
+
+[node name="JumpButton" type="Button" parent="HUD/TouchControls"]
+custom_minimum_size = Vector2(110, 64)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -126.0
+offset_top = -80.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "HIGH JUMP"
+
+[node name="LevelClearPanel" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBox" type="VBoxContainer" parent="HUD/LevelClearPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -80.0
+offset_right = 120.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/LevelClearPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "LEVEL CLEARED!
++500 BONUS"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HUD/LevelClearPanel/VBox"]
+layout_mode = 2
+
+[node name="NextButton" type="Button" parent="HUD/LevelClearPanel/VBox"]
+custom_minimum_size = Vector2(140, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "NEXT LEVEL"
+
+[node name="GameOverPanel" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -100.0
+offset_right = 110.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "SCORE: 0"
+horizontal_alignment = 1
+
+[node name="FinalBestLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "BEST: 0"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+
+[node name="BtnContainer" type="HBoxContainer" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "MENU"

@@ -1,0 +1,136 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/sky_hopper/SkyHopperController.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/sky_hopper/Player.gd" id="2_player"]
+[ext_resource type="Texture2D" path="res://assets/sky_hopper/player_flyer.png" id="3_flyer_tex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_player"]
+radius = 10.0
+
+[node name="SkyHopper" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="PipeContainer" type="Node2D" parent="."]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(80, 280)
+script = ExtResource("2_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = ExtResource("3_flyer_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("CircleShape2D_player")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 28.0
+offset_bottom = 76.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 1
+
+[node name="PauseButton" type="Button" parent="HUD"]
+custom_minimum_size = Vector2(36, 32)
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -46.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 48.0
+grow_horizontal = 0
+text = "||"
+
+[node name="ReadyPrompt" type="VBoxContainer" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -60.0
+offset_right = 120.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="GameTitle" type="Label" parent="HUD/ReadyPrompt"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "SKY HOPPER"
+horizontal_alignment = 1
+
+[node name="Instruction" type="Label" parent="HUD/ReadyPrompt"]
+layout_mode = 2
+text = "TAP OR SPACE TO FLY"
+horizontal_alignment = 1
+
+[node name="GameOverPanel" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -100.0
+offset_right = 110.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="NewRecordLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "★ NEW RECORD! ★"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "SCORE: 0"
+horizontal_alignment = 1
+
+[node name="FinalBestLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "BEST: 0"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+
+[node name="BtnContainer" type="HBoxContainer" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "MENU"

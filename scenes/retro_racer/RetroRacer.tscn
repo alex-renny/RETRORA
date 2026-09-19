@@ -1,0 +1,233 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/retro_racer/RetroRacerController.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/retro_racer/RoadScroller.gd" id="2_road"]
+[ext_resource type="Script" path="res://scripts/retro_racer/TrafficSpawner.gd" id="3_spawner"]
+[ext_resource type="Script" path="res://scripts/retro_racer/Car.gd" id="4_car"]
+[ext_resource type="Texture2D" path="res://assets/retro_racer/player_car.png" id="5_player_tex"]
+[ext_resource type="Script" path="res://scripts/retro_racer/RetroRacerHUD.gd" id="6_hud"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_car"]
+size = Vector2(18, 38)
+
+[node name="RetroRacer" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="RoadScroller" type="Node2D" parent="."]
+script = ExtResource("2_road")
+
+[node name="TrafficSpawner" type="Node2D" parent="."]
+script = ExtResource("3_spawner")
+
+[node name="PlayerCar" type="Area2D" parent="."]
+position = Vector2(180, 520)
+script = ExtResource("4_car")
+
+[node name="Sprite2D" type="Sprite2D" parent="PlayerCar"]
+texture = ExtResource("5_player_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerCar"]
+shape = SubResource("RectangleShape2D_car")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("6_hud")
+
+[node name="HUD" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="HBoxContainer" parent="HUD/HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 40.0
+grow_horizontal = 2
+
+[node name="DistanceLabel" type="Label" parent="HUD/HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "00000 m"
+
+[node name="BestLabel" type="Label" parent="HUD/HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "BEST: 00000 m"
+horizontal_alignment = 1
+
+[node name="ThemeButton" type="Button" parent="HUD/HUD/TopBar"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+text = "🎨"
+
+[node name="PauseButton" type="Button" parent="HUD/HUD/TopBar"]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+text = "||"
+
+[node name="BoostContainer" type="VBoxContainer" parent="HUD/HUD"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -260.0
+offset_right = 32.0
+offset_bottom = -236.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BoostLabel" type="Label" parent="HUD/HUD/BoostContainer"]
+layout_mode = 2
+text = "BOOST"
+horizontal_alignment = 1
+
+[node name="BoostBar" type="ProgressBar" parent="HUD/HUD/BoostContainer"]
+custom_minimum_size = Vector2(64, 12)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="NearMissLabel" type="Label" parent="HUD/HUD"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -80.0
+offset_right = 60.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "NEAR MISS! +50"
+horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="HUD/HUD"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="LeftButton" type="Button" parent="HUD/HUD/TouchControls"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -80.0
+offset_right = 80.0
+offset_bottom = -10.0
+grow_vertical = 0
+text = "◀"
+
+[node name="RightButton" type="Button" parent="HUD/HUD/TouchControls"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -80.0
+offset_top = -80.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "▶"
+
+[node name="BoostButton" type="Button" parent="HUD/HUD/TouchControls"]
+custom_minimum_size = Vector2(90, 60)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -45.0
+offset_top = -75.0
+offset_right = 45.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "BOOST"
+
+[node name="GameOverPanel" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -100.0
+offset_right = 110.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "CRASHED!"
+horizontal_alignment = 1
+
+[node name="NewRecordLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "★ NEW RECORD! ★"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "DISTANCE: 0 m"
+horizontal_alignment = 1
+
+[node name="FinalBestLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "BEST: 0 m"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+
+[node name="BtnContainer" type="HBoxContainer" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "MENU"

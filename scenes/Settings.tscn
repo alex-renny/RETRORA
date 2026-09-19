@@ -1,0 +1,129 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/Settings.gd" id="1_settings"]
+
+[node name="Settings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_settings")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SoundRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/SoundRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sound SFX"
+
+[node name="BtnSound" type="Button" parent="CenterContainer/VBoxContainer/SoundRow"]
+custom_minimum_size = Vector2(70, 32)
+layout_mode = 2
+text = "ON"
+
+[node name="MusicRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Music"
+
+[node name="BtnMusic" type="Button" parent="CenterContainer/VBoxContainer/MusicRow"]
+custom_minimum_size = Vector2(70, 32)
+layout_mode = 2
+text = "ON"
+
+[node name="ShakeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/ShakeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Screen Shake"
+
+[node name="BtnShake" type="Button" parent="CenterContainer/VBoxContainer/ShakeRow"]
+custom_minimum_size = Vector2(70, 32)
+layout_mode = 2
+text = "ON"
+
+[node name="VibRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/VibRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Vibration"
+
+[node name="BtnVib" type="Button" parent="CenterContainer/VBoxContainer/VibRow"]
+custom_minimum_size = Vector2(70, 32)
+layout_mode = 2
+text = "ON"
+
+[node name="CRTRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/CRTRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CRT Scanlines"
+
+[node name="BtnCRT" type="Button" parent="CenterContainer/VBoxContainer/CRTRow"]
+custom_minimum_size = Vector2(70, 32)
+layout_mode = 2
+text = "OFF"
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ResetScoresButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(240, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+text = "RESET HIGH SCORES"
+
+[node name="ResetSettingsButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(240, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "RESTORE DEFAULTS"
+
+[node name="HSeparator3" type="HSeparator" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(240, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "BACK TO MENU"

@@ -1,0 +1,168 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/snake/Snake.gd" id="1_snake"]
+
+[node name="Snake" type="Node2D"]
+script = ExtResource("1_snake")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="HBoxContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 48.0
+grow_horizontal = 2
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SCORE: 0"
+
+[node name="BestLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "BEST: 0"
+horizontal_alignment = 1
+
+[node name="PauseButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(40, 32)
+layout_mode = 2
+text = "||"
+
+[node name="DPad" type="Control" parent="HUD"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -220.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="BtnUp" type="Button" parent="HUD/DPad"]
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -85.0
+offset_right = 30.0
+offset_bottom = -35.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "▲"
+
+[node name="BtnDown" type="Button" parent="HUD/DPad"]
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = 35.0
+offset_right = 30.0
+offset_bottom = 85.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "▼"
+
+[node name="BtnLeft" type="Button" parent="HUD/DPad"]
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -95.0
+offset_top = -25.0
+offset_right = -35.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "◀"
+
+[node name="BtnRight" type="Button" parent="HUD/DPad"]
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 35.0
+offset_top = -25.0
+offset_right = 95.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "▶"
+
+[node name="GameOverPanel" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -100.0
+offset_right = 110.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="NewRecordLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "★ NEW RECORD! ★"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "SCORE: 0"
+horizontal_alignment = 1
+
+[node name="FinalBestLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "BEST: 0"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+
+[node name="BtnContainer" type="HBoxContainer" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "MENU"
