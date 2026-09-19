@@ -188,13 +188,12 @@ func _on_hole_whacked(hole_idx: int, type: int):
 		h.show_floating_score("+%d! (+3s)" % pts, Color(1.0, 0.84, 0.0))
 
 	elif type == h.HamsterType.BOMB:
-		combo = 0 # Break combo
-		var penalty = 150
-		score = max(0, score - penalty)
-		time_left = max(0.0, time_left - 3.0)
+		combo = 0
+		h.show_floating_score("💥 BOOM!", Color(1.0, 0.2, 0.2))
 		audio.play_penalty()
-		shake_intensity = 6.0
-		h.show_floating_score("-%d (-3s!)" % penalty, Color(1.0, 0.3, 0.3))
+		shake_intensity = 15.0
+		_game_over(true)
+		return
 
 	_update_hud()
 
@@ -209,9 +208,18 @@ func _update_hud():
 	else:
 		combo_label.visible = false
 
-func _game_over():
+func _game_over(exploded: bool = false):
 	current_state = State.GAME_OVER
 	audio.play_game_over()
+
+	var title_lbl = $HUD/GameOverPanel/VBox/Title
+	if title_lbl:
+		if exploded:
+			title_lbl.text = "💥 BOOM! BOMB DETONATED!"
+			title_lbl.modulate = Color(1.0, 0.3, 0.3)
+		else:
+			title_lbl.text = "TIME'S UP!"
+			title_lbl.modulate = Color(1.0, 0.85, 0.2)
 
 	var is_new_record = false
 	if score > high_score:

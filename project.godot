@@ -24,6 +24,7 @@ SettingsManager="*res://scripts/SettingsManager.gd"
 AudioManager="*res://scripts/AudioManager.gd"
 GameRegistry="*res://scripts/GameRegistry.gd"
 CRTOverlay="*res://scenes/ui/CRTOverlay.tscn"
+UpdateManager="*res://scripts/UpdateManager.gd"
 
 [display]
 
