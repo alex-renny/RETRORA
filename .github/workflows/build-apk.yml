@@ -76,7 +76,10 @@ jobs:
 
       - name: Export Retrora APK
         run: |
+          echo "Pre-importing assets with ETC2/ASTC compression..."
+          godot --headless --editor --quit || true
           mkdir -p build
+          echo "Exporting Android APK..."
           godot --headless --export-debug "Android" build/Retrora.apk
 
       - name: Upload APK as Workflow Artifact
@@ -91,6 +94,7 @@ jobs:
         with:
           tag_name: v1.0.0
           name: "RETRORA Arcade v1.0.0"
+          make_latest: true
           body: |
             ## 🎮 RETRORA Arcade v1.0.0 (Official Android Release)
             
