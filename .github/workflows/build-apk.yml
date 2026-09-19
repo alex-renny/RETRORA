@@ -92,26 +92,25 @@ jobs:
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
-          name: "RETRORA Arcade v1.1.0 - Unlocks & Progression Update"
+          tag_name: v1.2.0
+          name: "RETRORA Arcade v1.2.0 - Visual Showcase & Padlock Criteria Update"
           make_latest: true
           body: |
-            ## 🎮 RETRORA Arcade v1.1.0 (Major Progression & Unlocks Update)
+            ## 🎮 RETRORA Arcade v1.2.0 (Visual Item Showcase & Unlocks Update)
             
             Download and install **Retrora.apk** directly on your Android phone!
             
-            ### What's New in v1.1.0:
-            - **Major Meta-Progression & Unlock System**:
-              - 🐍 **Snake**: 5 Unlockable Snakes (Neon Viper, Desert Cobra, Cyber Dragon, Shadow Wyrm) & 5 Themed Arenas.
-              - 🏎️ **Retro Racer**: 5 Unlockable Vehicles (Superbike, Muscle Cruiser, Turbo Bus, Golden F1) & 5 Roads.
-              - 🕊️ **Sky Hopper**: 5 Unlockable Birds (Blue Falcon, Cyber Drone, Pixel Phoenix, Midnight Bat).
-              - ⚪ **Bounce Quest**: New Levels 4 & 5 (Neon Gravity Lab, Magma Citadel) + 3 Ball Skins.
-              - 🚀 **Space Defender**: 5 Starships (Interceptor, Plasma Cruiser, Phantom Bomber, Golden Valkyrie) with unique firing patterns.
-              - 🧱 **Brick Breaker**: 4 Striker Paddles, 3 Ball Types, and 3 Themed Arenas.
-              - 🐹 **Hamster Game**: 5 Unlockable Animals (Bunny, Kitty, Panda, Fox) + Instant sudden-death bomb explosions!
-            - **In-Game Garage / Customizer Modals**: Accessible via `[ 🎨 ]` buttons across all games.
-            - **Floating Unlock Toasts & Sound**: Celebrate achievements during live gameplay.
-            - **In-App Auto-Update Notifier**: Notifies when a newer version is released.
+            ### What's New in v1.2.0:
+            - **Visual Item Previews**:
+              - All skins, vehicles, roads, animals, birds, balls, paddles, and grounds now display dedicated 50x50 vector art previews.
+            - **Lock & Criteria Showcase**:
+              - Locked items are visually displayed in a shaded theme with a golden padlock `🔒` badge.
+              - Exact unlock requirements ("CRITERIA: Reach Score 35", "CRITERIA: Reach 700m", "CRITERIA: Whack 50 Animals", etc.) are prominently badge-styled.
+            - **Quick Unlocks Access in Menus**:
+              - Added `[ 🎨 ]` Unlocks buttons directly next to every game in the Game Select menu.
+              - Added `[ 🎨 ]` Unlocks buttons directly inside every game's Game Over screen.
+            - **Bounce Quest Grounds**:
+              - Conquering levels in Bounce Quest unlocks new grounds and obstacle courses directly selectable from the customizer.
           files: build/Retrora.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

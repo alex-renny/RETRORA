@@ -41,6 +41,18 @@ func _ready():
 	hud.menu_pressed.connect(_go_to_menu)
 	hud.theme_toggle_pressed.connect(func(): customizer_modal.show_modal())
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 	_setup_customizer()
 	var initial_road = SaveManager.get_equipped("racer_road", "city")
 	road.set_road_by_id(initial_road)
@@ -52,31 +64,8 @@ func _ready():
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "VEHICLES",
-			"category_key": "racer_vehicle",
-			"items": [
-				{"id": "red_racer", "name": "Red Racer", "desc": "Balanced sports coupe.", "req": "Starter"},
-				{"id": "superbike", "name": "Superbike", "desc": "Nimble & lightning-fast steering.", "req": "Reach 300m"},
-				{"id": "muscle_cruiser", "name": "Muscle Cruiser", "desc": "Heavy beast with chrome blower.", "req": "Reach 700m"},
-				{"id": "turbo_bus", "name": "Turbo Bus", "desc": "Massive arcade city bus.", "req": "Reach 1200m"},
-				{"id": "golden_f1", "name": "Golden F1", "desc": "Aerodynamic gold formula racer.", "req": "Reach 2000m"}
-			]
-		},
-		{
-			"category_name": "ROADS",
-			"category_key": "racer_road",
-			"items": [
-				{"id": "city", "name": "City Asphalt", "desc": "Classic urban expressway.", "req": "Starter"},
-				{"id": "cyber_neon", "name": "Cyber Neon", "desc": "Glowing midnight grid.", "req": "Reach 400m"},
-				{"id": "desert", "name": "Desert Highway", "desc": "Sun-scorched canyon road.", "req": "Reach 900m"},
-				{"id": "sunset_coast", "name": "Sunset Coast", "desc": "Neon twilight highway.", "req": "Reach 1500m"},
-				{"id": "lava_gorge", "name": "Lava Gorge", "desc": "Infernal volcanic pass.", "req": "Reach 2500m"}
-			]
-		}
-	]
-	customizer_modal.setup("GARAGE & HIGHWAYS", categories)
+	var cdata = GameRegistry.get_customizer_data("retro_racer")
+	customizer_modal.setup(cdata.get("title", "GARAGE & HIGHWAYS"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "racer_vehicle":
 			player.apply_vehicle(item_id)

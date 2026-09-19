@@ -53,6 +53,8 @@ func _ready():
 	player.died.connect(_on_player_died)
 
 	_setup_customizer()
+	var initial_ball = SaveManager.get_equipped("bounce_ball", "classic_red")
+	player.apply_ball_skin(initial_ball)
 
 	# Wire HUD controls
 	if skin_button:
@@ -62,24 +64,35 @@ func _ready():
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_load_next_level)
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "BALL SKINS",
-			"category_key": "bounce_ball",
-			"items": [
-				{"id": "classic_red", "name": "Classic Red", "desc": "The iconic bouncy crimson sphere.", "req": "Starter"},
-				{"id": "neon_pulse", "name": "Neon Pulse", "desc": "Glowing cyan energetic orb.", "req": "Clear Level 2"},
-				{"id": "golden_orb", "name": "Golden Orb", "desc": "Gleaming celestial sphere of mastery.", "req": "Clear Level 4"}
-			]
-		}
-	]
-	customizer_modal.setup("BOUNCE GEAR", categories)
+	var cdata = GameRegistry.get_customizer_data("bounce_quest")
+	customizer_modal.setup(cdata.get("title", "BOUNCE GEAR & GROUNDS"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "bounce_ball":
 			player.apply_ball_skin(item_id)
+		elif cat_key == "bounce_ground":
+			var lvl = 1
+			match item_id:
+				"level_1": lvl = 1
+				"level_2": lvl = 2
+				"level_3": lvl = 3
+				"level_4": lvl = 4
+				"level_5": lvl = 5
+			load_level(lvl)
 	)
 
 	# Wire Touch buttons
@@ -212,10 +225,16 @@ func _on_level_completed():
 	score += 500
 	_update_hud()
 
+	if current_level_idx >= 1:
+		SaveManager.unlock("bounce_ground", "level_2", "Level 2: Spike Cavern")
 	if current_level_idx >= 2:
 		SaveManager.unlock("bounce_ball", "neon_pulse", "Neon Pulse Ball")
+		SaveManager.unlock("bounce_ground", "level_3", "Level 3: Floating Spires")
+	if current_level_idx >= 3:
+		SaveManager.unlock("bounce_ground", "level_4", "Level 4: Crystal Core")
 	if current_level_idx >= 4:
 		SaveManager.unlock("bounce_ball", "golden_orb", "Golden Orb Ball")
+		SaveManager.unlock("bounce_ground", "level_5", "Level 5: Summit of Eternity")
 
 	if current_level_idx >= 5:
 		# Game Victory!

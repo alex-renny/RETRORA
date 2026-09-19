@@ -64,6 +64,18 @@ func _ready():
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_advance_level)
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 	btn_left.button_down.connect(func(): paddle.set_move_dir(-1.0))
 	btn_left.button_up.connect(func(): paddle.set_move_dir(0.0))
 	btn_right.button_down.connect(func(): paddle.set_move_dir(1.0))
@@ -75,37 +87,8 @@ func _ready():
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "PADDLES",
-			"category_key": "brick_paddle",
-			"items": [
-				{"id": "classic_cyan", "name": "Classic Cyan", "desc": "Balanced neon striker paddle.", "req": "Starter"},
-				{"id": "plasma_blade", "name": "Plasma Blade", "desc": "Crimson blade with wide deflection.", "req": "Reach 600 Pts"},
-				{"id": "golden_ingot", "name": "Golden Ingot", "desc": "Gilded auric bar with high bounce force.", "req": "Reach 1500 Pts"},
-				{"id": "fire_striker", "name": "Fire Striker", "desc": "Blazing solar striker with rapid rebound.", "req": "Reach 3000 Pts"}
-			]
-		},
-		{
-			"category_name": "BALLS",
-			"category_key": "brick_ball",
-			"items": [
-				{"id": "silver_sphere", "name": "Silver Sphere", "desc": "Polished chrome steel ball.", "req": "Starter"},
-				{"id": "fireball_comet", "name": "Fireball Comet", "desc": "Flaming ember projectile.", "req": "Reach 1000 Pts"},
-				{"id": "neon_prism", "name": "Neon Prism", "desc": "Prismatic crystal energy orb.", "req": "Reach 2200 Pts"}
-			]
-		},
-		{
-			"category_name": "ARENAS",
-			"category_key": "brick_arena",
-			"items": [
-				{"id": "midnight_vault", "name": "Midnight Vault", "desc": "Dark indigo cyberpunk arena.", "req": "Starter"},
-				{"id": "emerald_matrix", "name": "Emerald Matrix", "desc": "Phosphor green arcade grid.", "req": "Reach 800 Pts"},
-				{"id": "crimson_chasm", "name": "Crimson Chasm", "desc": "Molten volcanic neon hall.", "req": "Reach 1800 Pts"}
-			]
-		}
-	]
-	customizer_modal.setup("BRICK GEAR & ARENAS", categories)
+	var cdata = GameRegistry.get_customizer_data("brick_breaker")
+	customizer_modal.setup(cdata.get("title", "BRICK GEAR & ARENAS"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "brick_paddle":
 			paddle.apply_skin(item_id)

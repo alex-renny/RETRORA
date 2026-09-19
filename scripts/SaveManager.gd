@@ -34,7 +34,8 @@ var data: Dictionary = {
 		"brick_paddle": ["classic_cyan"],
 		"brick_ball": ["silver_sphere"],
 		"brick_arena": ["midnight_vault"],
-		"hamster_animal": ["hamster"]
+		"hamster_animal": ["hamster"],
+		"bounce_ground": ["level_1"]
 	},
 	"equipped": {
 		"snake_skin": "classic_green",
@@ -47,7 +48,8 @@ var data: Dictionary = {
 		"brick_paddle": "classic_cyan",
 		"brick_ball": "silver_sphere",
 		"brick_arena": "midnight_vault",
-		"hamster_animal": "hamster"
+		"hamster_animal": "hamster",
+		"bounce_ground": "level_1"
 	}
 }
 
@@ -89,7 +91,8 @@ func load_data() -> void:
 				"brick_paddle": "classic_cyan",
 				"brick_ball": "silver_sphere",
 				"brick_arena": "midnight_vault",
-				"hamster_animal": "hamster"
+				"hamster_animal": "hamster",
+				"bounce_ground": "level_1"
 			}
 			for cat in starter_defaults:
 				if not data["unlocks"].has(cat):

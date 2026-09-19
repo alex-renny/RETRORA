@@ -66,23 +66,23 @@ func _ready():
 	retry_btn.pressed.connect(restart_game)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "STARSHIPS & JETS",
-			"category_key": "space_jet",
-			"items": [
-				{"id": "starfighter", "name": "Starfighter", "desc": "Balanced twin-laser patrol craft.", "req": "Starter"},
-				{"id": "interceptor", "name": "Interceptor", "desc": "High-speed 3-way spread shooter.", "req": "Clear Wave 3 / 1000 Pts"},
-				{"id": "plasma_cruiser", "name": "Plasma Cruiser", "desc": "Heavy armored hull with 4 HP & plasma bolts.", "req": "Clear Wave 6 / 2500 Pts"},
-				{"id": "phantom_bomber", "name": "Phantom Bomber", "desc": "Stealth fighter with rapid quad lasers.", "req": "Clear Wave 8 / 4500 Pts"},
-				{"id": "golden_valkyrie", "name": "Golden Valkyrie", "desc": "God-tier golden flagship with 5 HP.", "req": "Defeat Boss / 7500 Pts"}
-			]
-		}
-	]
-	customizer_modal.setup("SPACE HANGAR", categories)
+	var cdata = GameRegistry.get_customizer_data("space_defender")
+	customizer_modal.setup(cdata.get("title", "SPACE HANGAR"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "space_jet":
 			player.apply_jet(item_id)

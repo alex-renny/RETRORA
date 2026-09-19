@@ -122,6 +122,18 @@ func _ready():
 	retry_button.pressed.connect(start_game)
 	menu_button.pressed.connect(func(): GameManager.go_to_main_menu())
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 	btn_up.pressed.connect(func(): _set_direction(Vector2i(0, -1)))
 	btn_down.pressed.connect(func(): _set_direction(Vector2i(0, 1)))
 	btn_left.pressed.connect(func(): _set_direction(Vector2i(-1, 0)))
@@ -132,31 +144,8 @@ func _ready():
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "SNAKES",
-			"category_key": "snake_skin",
-			"items": [
-				{"id": "classic_green", "name": "Classic Green", "desc": "The timeless retro arcade serpent.", "req": "Starter"},
-				{"id": "neon_viper", "name": "Neon Viper", "desc": "Glowing synthwave aesthetic.", "req": "Reach Score 10"},
-				{"id": "desert_cobra", "name": "Desert Cobra", "desc": "Venomous golden scales.", "req": "Reach Score 35"},
-				{"id": "cyber_dragon", "name": "Cyber Dragon", "desc": "Fiery crimson cyborg wyrm.", "req": "Reach Score 70"},
-				{"id": "shadow_wyrm", "name": "Shadow Wyrm", "desc": "Mythic void cosmic dragon.", "req": "Reach Score 120"}
-			]
-		},
-		{
-			"category_name": "ARENAS",
-			"category_key": "snake_arena",
-			"items": [
-				{"id": "classic_field", "name": "Classic Field", "desc": "Nostalgic green phosphor grid.", "req": "Starter"},
-				{"id": "synthwave_grid", "name": "Synthwave Grid", "desc": "Cyberpunk neon battleground.", "req": "Reach Score 20"},
-				{"id": "desert_dunes", "name": "Desert Dunes", "desc": "Warm sunlit desert arena.", "req": "Reach Score 50"},
-				{"id": "frozen_tundra", "name": "Frozen Tundra", "desc": "Chilling glacial ice floor.", "req": "Reach Score 90"},
-				{"id": "volcanic_abyss", "name": "Volcanic Abyss", "desc": "Infernal molten depths.", "req": "Reach Score 150"}
-			]
-		}
-	]
-	customizer_modal.setup("SNAKE UNLOCKS", categories)
+	var cdata = GameRegistry.get_customizer_data("snake")
+	customizer_modal.setup(cdata.get("title", "SNAKE UNLOCKS"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "snake_skin":
 			current_skin_id = item_id

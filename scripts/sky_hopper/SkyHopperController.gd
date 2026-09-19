@@ -54,25 +54,25 @@ func _ready():
 	retry_button.pressed.connect(reset_game)
 	menu_button.pressed.connect(func(): GameManager.go_to_game_select())
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 	reset_game()
 
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "BIRDS & FLYERS",
-			"category_key": "hopper_bird",
-			"items": [
-				{"id": "yellow_finch", "name": "Yellow Finch", "desc": "Classic cheerful golden finch.", "req": "Starter"},
-				{"id": "blue_falcon", "name": "Blue Falcon", "desc": "Supersonic raptor with cobalt wings.", "req": "Pass 10 Pipes"},
-				{"id": "cyber_drone", "name": "Cyber Drone", "desc": "Hover drone with glowing scanner.", "req": "Pass 25 Pipes"},
-				{"id": "pixel_phoenix", "name": "Pixel Phoenix", "desc": "Legendary firebird with ember crest.", "req": "Pass 50 Pipes"},
-				{"id": "midnight_bat", "name": "Midnight Bat", "desc": "Nocturnal flyer with ruby eyes.", "req": "Pass 80 Pipes"}
-			]
-		}
-	]
-	customizer_modal.setup("BIRD ROSTER", categories)
+	var cdata = GameRegistry.get_customizer_data("sky_hopper")
+	customizer_modal.setup(cdata.get("title", "BIRD ROSTER"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "hopper_bird":
 			player.apply_bird(item_id)

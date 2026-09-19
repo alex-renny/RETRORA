@@ -77,23 +77,23 @@ func _bind_ui():
 	retry_button.pressed.connect(_reset_game)
 	menu_button.pressed.connect(func(): GameManager.go_to_game_select())
 
+	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
+	if btn_container and not btn_container.has_node("UnlocksButton"):
+		var u_btn = Button.new()
+		u_btn.name = "UnlocksButton"
+		u_btn.text = "🎨"
+		u_btn.custom_minimum_size = Vector2(44, 40)
+		u_btn.modulate = Color(1.0, 0.88, 0.25)
+		u_btn.pressed.connect(func(): customizer_modal.show_modal())
+		btn_container.add_child(u_btn)
+		if btn_container.get_child_count() > 2:
+			btn_container.move_child(u_btn, 1)
+
 func _setup_customizer():
 	if not customizer_modal:
 		return
-	var categories = [
-		{
-			"category_name": "PETS & ANIMALS",
-			"category_key": "hamster_animal",
-			"items": [
-				{"id": "hamster", "name": "Golden Hamster", "desc": "Chubby cheeks & cute buck teeth.", "req": "Starter"},
-				{"id": "bunny", "name": "Floppy Bunny", "desc": "Tall pink ears & twitchy nose.", "req": "Whack 20 Animals"},
-				{"id": "kitty", "name": "Playful Kitty", "desc": "Pointed cat ears & cute whiskers.", "req": "Whack 50 Animals"},
-				{"id": "panda", "name": "Sleepy Panda", "desc": "Black eye patches & round ears.", "req": "Whack 100 Animals"},
-				{"id": "fox", "name": "Swift Kitsune", "desc": "Amber fur & black-tipped ears.", "req": "Whack 180 Animals"}
-			]
-		}
-	]
-	customizer_modal.setup("BURROW ROSTER", categories)
+	var cdata = GameRegistry.get_customizer_data("hamster_game")
+	customizer_modal.setup(cdata.get("title", "BURROW ROSTER"), cdata.get("categories", []))
 	customizer_modal.item_equipped.connect(func(cat_key, item_id):
 		if cat_key == "hamster_animal":
 			for h in holes:

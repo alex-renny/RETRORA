@@ -1,11 +1,14 @@
 extends Control
 
-# CustomizerModal: In-game garage, skins, grounds & unlock selector for RETRORA games.
+# CustomizerModal: In-game & menu garage, skins, grounds & unlock selector for RETRORA.
 
 signal item_equipped(category_key: String, item_id: String)
 
+const ItemPreviewScript = preload("res://scripts/ui/ItemPreview.gd")
+
 var categories_data: Array = []
 var active_category_idx: int = 0
+var was_paused_before_open: bool = false
 
 @onready var modal_backdrop: ColorRect = $ColorRect
 @onready var modal_title: Label = $ColorRect/CenterContainer/VBox/Title
@@ -29,21 +32,24 @@ func _ready():
 		close_btn.pressed.connect(hide_modal)
 	SaveManager.item_unlocked.connect(_on_item_unlocked_globally)
 
-func setup(title_text: String, categories: Array):
+func setup(title_text: String, categories: Array, close_text: String = "BACK TO GAME"):
 	modal_title.text = title_text
 	categories_data = categories
 	active_category_idx = 0
+	if close_btn:
+		close_btn.text = close_text
 	_build_tabs()
 	_populate_active_category()
 
 func show_modal():
+	was_paused_before_open = get_tree().paused
 	get_tree().paused = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	modal_backdrop.visible = true
 	_populate_active_category()
 
 func hide_modal():
-	get_tree().paused = false
+	get_tree().paused = was_paused_before_open
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modal_backdrop.visible = false
 
@@ -55,7 +61,7 @@ func _build_tabs():
 		var cat = categories_data[i]
 		var btn = Button.new()
 		btn.text = cat.get("category_name", "CATEGORY")
-		btn.custom_minimum_size = Vector2(100, 34)
+		btn.custom_minimum_size = Vector2(90, 32)
 		var idx = i
 		btn.pressed.connect(func():
 			active_category_idx = idx
@@ -96,44 +102,88 @@ func _populate_active_category():
 		var is_equipped = (item_id == equipped_id)
 
 		var card = PanelContainer.new()
-		card.custom_minimum_size = Vector2(280, 52)
+		card.custom_minimum_size = Vector2(308, 62)
+
+		var style = StyleBoxFlat.new()
+		style.set_corner_radius_all(6)
+		style.content_margin_left = 6
+		style.content_margin_right = 6
+		style.content_margin_top = 5
+		style.content_margin_bottom = 5
+
+		if is_equipped:
+			style.bg_color = Color(0.06, 0.16, 0.09, 0.95)
+			style.border_color = Color(0.25, 0.95, 0.5, 0.95)
+			style.set_border_width_all(2)
+		elif is_unlocked:
+			style.bg_color = Color(0.08, 0.12, 0.18, 0.9)
+			style.border_color = Color(0.25, 0.45, 0.65, 0.8)
+			style.set_border_width_all(1)
+		else:
+			style.bg_color = Color(0.07, 0.05, 0.04, 0.92)
+			style.border_color = Color(0.5, 0.35, 0.15, 0.75)
+			style.set_border_width_all(1)
+
+		card.add_theme_stylebox_override("panel", style)
 
 		var hbox = HBoxContainer.new()
-		hbox.theme_override_constants.separation = 8
+		hbox.add_theme_constant_override("separation", 8)
 		card.add_child(hbox)
 
+		# 1. 50x50 Visual Vector Pixel Preview with lock overlay if locked
+		var preview = ItemPreviewScript.new()
+		preview.setup(cat_key, item_id, is_unlocked, is_equipped)
+		hbox.add_child(preview)
+
+		# 2. Text Content (Name, Description, Unlock Criteria Badge)
 		var text_vbox = VBoxContainer.new()
 		text_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		text_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+		text_vbox.add_theme_constant_override("separation", 2)
 		hbox.add_child(text_vbox)
 
 		var name_lbl = Label.new()
-		name_lbl.text = item_name
-		name_lbl.theme_override_font_sizes.font_size = 13
 		if is_equipped:
-			name_lbl.modulate = Color(0.3, 1.0, 0.5)
+			name_lbl.text = "✓ " + item_name
+			name_lbl.modulate = Color(0.35, 1.0, 0.55)
 		elif is_unlocked:
-			name_lbl.modulate = Color.WHITE
+			name_lbl.text = item_name
+			name_lbl.modulate = Color(0.95, 0.95, 1.0)
 		else:
-			name_lbl.modulate = Color(0.6, 0.6, 0.6)
+			name_lbl.text = "🔒 " + item_name
+			name_lbl.modulate = Color(0.8, 0.7, 0.6)
+		name_lbl.add_theme_font_size_override("font_size", 12)
 		text_vbox.add_child(name_lbl)
 
 		var desc_lbl = Label.new()
-		desc_lbl.text = item_desc if is_unlocked else ("🔒 " + item_req)
-		desc_lbl.theme_override_font_sizes.font_size = 10
-		desc_lbl.modulate = Color(0.7, 0.7, 0.8) if is_unlocked else Color(1.0, 0.7, 0.3)
+		desc_lbl.text = item_desc
+		desc_lbl.add_theme_font_size_override("font_size", 9)
+		desc_lbl.modulate = Color(0.7, 0.75, 0.8) if is_unlocked else Color(0.6, 0.55, 0.5)
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		text_vbox.add_child(desc_lbl)
 
+		if not is_unlocked:
+			var req_lbl = Label.new()
+			req_lbl.text = "CRITERIA: %s" % item_req
+			req_lbl.add_theme_font_size_override("font_size", 9)
+			req_lbl.modulate = Color(1.0, 0.75, 0.25)
+			req_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			text_vbox.add_child(req_lbl)
+
+		# 3. Action Button (EQUIPPED / EQUIP / LOCKED)
 		var action_btn = Button.new()
-		action_btn.custom_minimum_size = Vector2(80, 36)
+		action_btn.custom_minimum_size = Vector2(76, 36)
 		action_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		action_btn.focus_mode = Control.FOCUS_NONE
 
 		if is_equipped:
 			action_btn.text = "EQUIPPED"
 			action_btn.disabled = true
-			action_btn.modulate = Color(0.3, 1.0, 0.5)
+			action_btn.modulate = Color(0.35, 1.0, 0.55)
 		elif is_unlocked:
 			action_btn.text = "EQUIP"
+			action_btn.disabled = false
+			action_btn.modulate = Color(0.25, 0.85, 1.0)
 			var cur_key = cat_key
 			var cur_id = item_id
 			action_btn.pressed.connect(func():
@@ -144,7 +194,7 @@ func _populate_active_category():
 		else:
 			action_btn.text = "LOCKED"
 			action_btn.disabled = true
-			action_btn.modulate = Color(0.5, 0.5, 0.5)
+			action_btn.modulate = Color(0.55, 0.45, 0.35)
 
 		hbox.add_child(action_btn)
 		items_container.add_child(card)

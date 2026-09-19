@@ -29,28 +29,28 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="ColorRect/CenterContainer"]
-custom_minimum_size = Vector2(300, 520)
+custom_minimum_size = Vector2(330, 560)
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="Title" type="Label" parent="ColorRect/CenterContainer/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "CUSTOMIZATION & UNLOCKS"
 horizontal_alignment = 1
 
 [node name="TabsContainer" type="HBoxContainer" parent="ColorRect/CenterContainer/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="ColorRect/CenterContainer/VBox"]
 layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ColorRect/CenterContainer/VBox"]
-custom_minimum_size = Vector2(290, 310)
+custom_minimum_size = Vector2(326, 380)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
