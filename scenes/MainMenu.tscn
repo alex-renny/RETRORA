@@ -103,7 +103,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.6, 1)
 theme_override_font_sizes/font_size = 11
-text = "7 ARCADE CLASSICS • OFFLINE"
+text = "8 ARCADE CLASSICS • OFFLINE"
 horizontal_alignment = 1
 
 [node name="UpdateBanner" type="Button" parent="CenterContainer/VBoxContainer"]

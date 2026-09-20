@@ -16,6 +16,7 @@ var is_active: bool = true
 var fire_timer: float = 0.0
 var is_firing: bool = true
 var move_vec: Vector2 = Vector2.ZERO
+var drag_target_x: float = -1.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -62,6 +63,7 @@ func reset():
 	is_invulnerable = false
 	modulate = Color.WHITE
 	fire_timer = 0.0
+	drag_target_x = -1.0
 	health_changed.emit(hp)
 	queue_redraw()
 
@@ -83,7 +85,13 @@ func _process(delta: float):
 	if move_vec != Vector2.ZERO:
 		dir = move_vec
 
-	position += dir.normalized() * move_speed * delta
+	if drag_target_x >= 0.0:
+		var target_x := clampf(drag_target_x, 20.0, 340.0)
+		dir.x = signf(target_x - position.x)
+		position.x = move_toward(position.x, target_x, move_speed * 1.7 * delta)
+		position.y += dir.y * move_speed * delta
+	else:
+		position += dir.normalized() * move_speed * delta
 	position.x = clamp(position.x, 20.0, 340.0)
 	position.y = clamp(position.y, 380.0, 600.0)
 
@@ -127,6 +135,12 @@ func _spawn_laser(spawn_pos: Vector2, vel: Vector2):
 
 func set_move_vector(vec: Vector2):
 	move_vec = vec
+
+func set_drag_target_x(target_x: float) -> void:
+	drag_target_x = target_x
+
+func clear_drag_target() -> void:
+	drag_target_x = -1.0
 
 func set_firing(firing: bool):
 	is_firing = firing
@@ -307,4 +321,3 @@ func _draw_golden_valkyrie():
 		Vector2(4.5, -2)
 	]), PackedColorArray([Color(0.2, 0.95, 1.0)]))
 	draw_circle(Vector2(0, -1), 1.5, Color.WHITE)
-

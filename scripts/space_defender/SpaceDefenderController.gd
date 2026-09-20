@@ -337,6 +337,26 @@ func _toggle_pause():
 			player.is_active = true
 		)
 
+func _unhandled_input(event: InputEvent) -> void:
+	# Drag the open battle area to steer horizontally. HUD buttons consume their
+	# own touches before this handler, so their controls remain available.
+	if is_game_over or is_paused:
+		return
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			player.set_drag_target_x(event.position.x)
+		else:
+			player.clear_drag_target()
+	elif event is InputEventScreenDrag:
+		player.set_drag_target_x(event.position.x)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			player.set_drag_target_x(event.position.x)
+		else:
+			player.clear_drag_target()
+	elif event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
+		player.set_drag_target_x(event.position.x)
+
 func _draw():
 	var is_light = SettingsManager.is_light_theme()
 	var bg_col = Color(0.12, 0.16, 0.24) if is_light else Color(0.03, 0.03, 0.06)

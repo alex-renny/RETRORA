@@ -18,6 +18,8 @@ var start_cell: Vector2i = Vector2i.ZERO
 
 # Current continuous drawn path: Array[Vector2i]
 var path: Array[Vector2i] = []
+# The authored route is used by the hint button when the player is following it.
+var guide_path: Array[Vector2i] = []
 
 # Unlocks / Visual Theme
 var theme_id: String = "electric_cyan"
@@ -49,6 +51,7 @@ func refresh_equipment() -> void:
 func load_level(level_num: int) -> void:
 	active_tiles.clear()
 	path.clear()
+	guide_path.clear()
 	trail_sparks.clear()
 	completion_burst.clear()
 	is_animating_win = false
@@ -75,6 +78,12 @@ func load_level(level_num: int) -> void:
 	queue_redraw()
 
 func _build_level_geometry(lvl: int) -> void:
+	# Every level is built from its own deterministic seed. The resulting board
+	# shape and intended route are unique, while still guaranteeing a one-stroke
+	# solution for both players and the hint system.
+	_build_unique_level(lvl)
+	return
+
 	# Hand-crafted progressive geometry scaling to high difficulty:
 	match lvl:
 		1:
@@ -95,11 +104,17 @@ func _build_level_geometry(lvl: int) -> void:
 			start_cell = Vector2i(0, 0)
 		3:
 			cols = 5; rows = 5
-			# 5x5 Ring with interior bottleneck
-			for y in range(5):
-				for x in range(5):
-					if (x == 0 or x == 4 or y == 0 or y == 4 or (x == 2 and y in [1, 2, 3])):
-						active_tiles.append(Vector2i(x, y))
+			# The old ring had two forced branches around its centre, which made a
+			# one-stroke completion impossible. This deliberate 5x5 wave has a
+			# continuous solution from the marked start and remains a gentle step up.
+			guide_path = [
+				Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0),
+				Vector2i(4, 1), Vector2i(3, 1), Vector2i(2, 1), Vector2i(1, 1), Vector2i(0, 1),
+				Vector2i(0, 2), Vector2i(1, 2), Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2),
+				Vector2i(4, 3), Vector2i(3, 3), Vector2i(2, 3), Vector2i(1, 3), Vector2i(0, 3),
+				Vector2i(0, 4), Vector2i(1, 4), Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4)
+			]
+			active_tiles = guide_path.duplicate()
 			start_cell = Vector2i(0, 0)
 		4:
 			# Screenshot matching puzzle! (5x5 with 4-block bottom-right cutout)
@@ -159,6 +174,76 @@ func _build_level_geometry(lvl: int) -> void:
 		_:
 			# Procedural Master Scaled Levels (Levels 11 to 100+)
 			_generate_procedural_hamiltonian_puzzle(lvl)
+
+func _build_unique_level(lvl: int) -> void:
+	# All levels use a dense 8x8 board. A seeded backtracker creates a long,
+	# winding route with turns in every direction, instead of a readable row
+	# snake. The route itself is the guaranteed solution, while nearby segments
+	# create the tempting false turns that make the puzzle genuinely difficult.
+	cols = 8
+	rows = 8
+	var target_length: int = 52 + (lvl % 4) * 3 # 55–61 blocks per level
+	var base_seed: int = 104729 + lvl * 7919
+
+	for attempt in range(18):
+		var rng := RandomNumberGenerator.new()
+		rng.seed = base_seed + attempt * 3571
+		var candidate_path: Array[Vector2i] = [Vector2i(rng.randi_range(0, cols - 1), rng.randi_range(0, rows - 1))]
+		var visited := {candidate_path[0]: true}
+		var search_budget: Array[int] = [18000]
+		if _grow_hard_route(candidate_path, visited, target_length, rng, search_budget):
+			guide_path = candidate_path
+			break
+
+	# A deterministic fallback keeps the puzzle playable even on a very slow
+	# device where a dense route cannot be found within the search budget.
+	if guide_path.is_empty():
+		for y in range(rows):
+			for x_offset in range(cols):
+				var x := x_offset if y % 2 == 0 else cols - 1 - x_offset
+				guide_path.append(Vector2i(x, y))
+
+	active_tiles = guide_path.duplicate()
+	start_cell = guide_path.front()
+
+func _grow_hard_route(route: Array[Vector2i], visited: Dictionary, target_length: int, rng: RandomNumberGenerator, search_budget: Array[int]) -> bool:
+	if route.size() >= target_length:
+		return true
+	if search_budget[0] <= 0:
+		return false
+	search_budget[0] -= 1
+
+	var candidates: Array[Vector2i] = []
+	for direction in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		var next_cell: Vector2i = route.back() + direction
+		if next_cell.x >= 0 and next_cell.x < cols and next_cell.y >= 0 and next_cell.y < rows and not visited.has(next_cell):
+			candidates.append(next_cell)
+
+	# Warnsdorff-style ordering makes long, tightly packed routes reliable, and
+	# random tie breaking gives every level a visibly different silhouette.
+	for i in range(candidates.size() - 1, 0, -1):
+		var swap_index: int = rng.randi_range(0, i)
+		var saved: Vector2i = candidates[i]
+		candidates[i] = candidates[swap_index]
+		candidates[swap_index] = saved
+	candidates.sort_custom(func(a, b): return _open_neighbour_count(a, visited) < _open_neighbour_count(b, visited))
+
+	for next_cell in candidates:
+		visited[next_cell] = true
+		route.append(next_cell)
+		if _grow_hard_route(route, visited, target_length, rng, search_budget):
+			return true
+		route.pop_back()
+		visited.erase(next_cell)
+	return false
+
+func _open_neighbour_count(cell: Vector2i, visited: Dictionary) -> int:
+	var count := 0
+	for direction in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		var neighbour: Vector2i = cell + direction
+		if neighbour.x >= 0 and neighbour.x < cols and neighbour.y >= 0 and neighbour.y < rows and not visited.has(neighbour):
+			count += 1
+	return count
 
 func _generate_procedural_hamiltonian_puzzle(lvl: int) -> void:
 	# Size dynamically scales from 6x6 up to 8x8
@@ -314,6 +399,52 @@ func reset_path() -> void:
 		path.append(start_cell)
 	path_changed.emit()
 	queue_redraw()
+
+func apply_hint() -> bool:
+	if is_animating_win or path.is_empty() or path.size() >= active_tiles.size():
+		return false
+
+	var next_cell := _get_hint_cell()
+	if next_cell == Vector2i(-1, -1):
+		return false
+	path.append(next_cell)
+	_spawn_spark(cell_to_screen(next_cell))
+	path_changed.emit()
+	_check_win_condition()
+	queue_redraw()
+	return true
+
+func _get_hint_cell() -> Vector2i:
+	# Use the authored answer while it still matches the player's route. This is
+	# instantaneous and guarantees the automatic block never creates a dead end.
+	if guide_path.size() > path.size() and _path_matches_guide_prefix():
+		return guide_path[path.size()]
+
+	# For free-form and generated boards, give one legal adjacent unvisited cell.
+	# Prefer cells with fewer onward exits so the suggested step is usually useful.
+	var candidates: Array[Vector2i] = []
+	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		var candidate: Vector2i = path.back() + dir
+		if active_tiles.has(candidate) and not path.has(candidate):
+			candidates.append(candidate)
+	if candidates.is_empty():
+		return Vector2i(-1, -1)
+	candidates.sort_custom(func(a, b): return _unvisited_exit_count(a) < _unvisited_exit_count(b))
+	return candidates[0]
+
+func _path_matches_guide_prefix() -> bool:
+	for i in path.size():
+		if i >= guide_path.size() or path[i] != guide_path[i]:
+			return false
+	return true
+
+func _unvisited_exit_count(cell: Vector2i) -> int:
+	var exits := 0
+	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		var neighbour: Vector2i = cell + dir
+		if active_tiles.has(neighbour) and not path.has(neighbour):
+			exits += 1
+	return exits
 
 func _is_orthogonal_adjacent(a: Vector2i, b: Vector2i) -> bool:
 	var diff = a - b

@@ -14,6 +14,7 @@ const BlockGridScript = preload("res://scripts/block_fill/BlockGrid.gd")
 # Action Controls (Bottom)
 @onready var undo_btn: Button = $HUD/BottomBar/UndoButton
 @onready var reset_btn: Button = $HUD/BottomBar/ResetButton
+@onready var tip_btn: Button = $HUD/BottomBar/TipButton
 
 # Popups
 @onready var level_clear_panel: PanelContainer = $HUD/LevelClearPanel
@@ -25,6 +26,7 @@ const BlockGridScript = preload("res://scripts/block_fill/BlockGrid.gd")
 # State
 var current_level: int = 1
 var highest_level: int = 1
+var tip_cooldown_remaining: float = 0.0
 
 func _ready() -> void:
 	level_clear_panel.visible = false
@@ -40,6 +42,7 @@ func _ready() -> void:
 	skin_btn.pressed.connect(_on_open_customizer)
 	undo_btn.pressed.connect(func(): block_grid.undo_step())
 	reset_btn.pressed.connect(func(): block_grid.reset_path())
+	tip_btn.pressed.connect(_on_tip_pressed)
 	next_btn.pressed.connect(_on_next_level_pressed)
 	
 	# BlockGrid events
@@ -75,7 +78,7 @@ func _apply_theme() -> void:
 	if level_lbl: level_lbl.modulate = pal["text_primary"]
 	if progress_lbl: progress_lbl.modulate = pal["accent_warning"]
 	
-	for b in [undo_btn, reset_btn]:
+	for b in [undo_btn, reset_btn, tip_btn]:
 		if b:
 			var s = StyleBoxFlat.new()
 			s.bg_color = pal["card_bg"]
@@ -93,6 +96,27 @@ func start_level(lvl: int) -> void:
 	level_lbl.text = "LEVEL %d" % current_level
 	_update_progress_label()
 	_check_unlock_milestones()
+
+func _process(delta: float) -> void:
+	if tip_cooldown_remaining <= 0.0:
+		return
+	tip_cooldown_remaining = maxf(0.0, tip_cooldown_remaining - delta)
+	_update_tip_button()
+
+func _on_tip_pressed() -> void:
+	if tip_cooldown_remaining > 0.0:
+		return
+	if block_grid.apply_hint():
+		tip_cooldown_remaining = 60.0
+		_update_tip_button()
+
+func _update_tip_button() -> void:
+	if tip_cooldown_remaining <= 0.0:
+		tip_btn.disabled = false
+		tip_btn.text = "💡 TIP"
+	else:
+		tip_btn.disabled = true
+		tip_btn.text = "TIP %ds" % ceili(tip_cooldown_remaining)
 
 func _update_progress_label() -> void:
 	var filled = block_grid.path.size()

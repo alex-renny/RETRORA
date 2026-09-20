@@ -66,6 +66,7 @@ func _ready():
 	retry_btn.pressed.connect(restart_quest)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_load_next_level)
+	_wire_touch_controls()
 
 func _apply_theme():
 	var p = SettingsManager.get_palette()
@@ -114,14 +115,18 @@ func _setup_customizer():
 			load_level(lvl)
 	)
 
-	# Wire Touch buttons
+
+func _wire_touch_controls() -> void:
+	# Keep these controls independent from the customizer setup. Previously the
+	# high-jump binding was nested there, so it could be skipped during UI setup.
 	btn_left.button_down.connect(func(): player.set_move_dir(-1.0))
 	btn_left.button_up.connect(func(): player.set_move_dir(0.0))
 	btn_right.button_down.connect(func(): player.set_move_dir(1.0))
 	btn_right.button_up.connect(func(): player.set_move_dir(0.0))
 	btn_jump.button_down.connect(func(): player.set_high_bounce(true))
 	btn_jump.button_up.connect(func(): player.set_high_bounce(false))
-
+	# Some mobile devices report a completed press more reliably than button_down.
+	btn_jump.pressed.connect(func(): player.request_high_bounce())
 	restart_quest()
 
 func restart_quest():
@@ -223,6 +228,16 @@ func _process(delta: float):
 		camera.offset = Vector2(randf_range(-shake_intensity, shake_intensity), randf_range(-shake_intensity, shake_intensity))
 	else:
 		camera.offset = Vector2.ZERO
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Any tap on the clear play area requests a high bounce. HUD buttons consume
+	# their own events first, so their controls continue to work normally.
+	if is_game_over or is_paused or level_clear_panel.visible or game_over_panel.visible:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		player.request_high_bounce()
+	elif event is InputEventScreenTouch and event.pressed:
+		player.request_high_bounce()
 
 func _on_crystal_collected(pts: int):
 	score += pts

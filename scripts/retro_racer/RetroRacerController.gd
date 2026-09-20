@@ -125,6 +125,21 @@ func _unhandled_input(event: InputEvent):
 	if current_state != State.RACING:
 		return
 
+	# Horizontal drag on the road directly steers the car. HUD buttons handle
+	# their own events first, so boost and arrow controls keep working.
+	if event is InputEventScreenDrag:
+		player.set_drag_target_x(event.position.x)
+		return
+	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
+		player.set_drag_target_x(event.position.x)
+		return
+	if event is InputEventScreenTouch and event.pressed:
+		player.set_drag_target_x(event.position.x)
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		player.set_drag_target_x(event.position.x)
+		return
+
 	if event.is_action_pressed("ui_left") or event.is_action_pressed("move_left"):
 		player.steer_left()
 	elif event.is_action_pressed("ui_right") or event.is_action_pressed("move_right"):

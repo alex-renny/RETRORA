@@ -71,6 +71,13 @@ func steer_right():
 	current_lane += 1
 	target_x = LANE_POSITIONS[current_lane]
 
+func set_drag_target_x(screen_x: float) -> void:
+	if not is_active:
+		return
+	# Follow the finger inside the road while retaining lane-aware button input.
+	target_x = clampf(screen_x, LANE_POSITIONS[0], LANE_POSITIONS[2])
+	current_lane = clampi(int(round((target_x - LANE_POSITIONS[0]) / 70.0)), 0, LANE_POSITIONS.size() - 1)
+
 func _on_area_entered(other_area: Area2D):
 	if not is_active:
 		return
@@ -270,4 +277,3 @@ func _draw_golden_f1():
 	# F1 rain flashing LED
 	var led_blink = sin(Time.get_ticks_msec() * 0.02) > 0.0
 	draw_rect(Rect2(-2, 21, 4, 2), Color(1.0, 0.1, 0.1) if led_blink else Color(0.4, 0.05, 0.05))
-
