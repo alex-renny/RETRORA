@@ -61,11 +61,6 @@ func _ready() -> void:
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_on_next_level_pressed)
 	
-	# Touch Buttons input connections
-	btn_left.gui_input.connect(func(ev): _handle_dir_input(ev, Vector2i.LEFT))
-	btn_right.gui_input.connect(func(ev): _handle_dir_input(ev, Vector2i.RIGHT))
-	btn_pick.gui_input.connect(_handle_pick_input)
-	
 	# CaveGrid signals
 	cave_grid.treasure_collected.connect(_on_treasure_collected)
 	cave_grid.h2o_collected.connect(_on_h2o_collected)
@@ -75,22 +70,84 @@ func _ready() -> void:
 	
 	start_level(1)
 
-func _handle_dir_input(event: InputEvent, dir: Vector2i) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			hold_dir = dir
-		elif hold_dir == dir:
-			hold_dir = Vector2i.ZERO
-	elif event is InputEventScreenTouch:
-		if event.pressed:
-			hold_dir = dir
-		elif hold_dir == dir:
-			hold_dir = Vector2i.ZERO
+# Track active touch IDs per button
+var _touch_left_id: int = -1
+var _touch_right_id: int = -1
+var _touch_pick_id: int = -1
 
-func _handle_pick_input(event: InputEvent) -> void:
-	if (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed) or (event is InputEventScreenTouch and event.pressed):
-		# Big pickaxe digs down or forward
-		_try_dig_down_or_facing()
+func _input(event: InputEvent) -> void:
+	if not is_game_active:
+		return
+	if customizer_modal.visible or level_clear_panel.visible or game_over_panel.visible:
+		return
+	
+	if event is InputEventScreenTouch:
+		var pos = event.position
+		if event.pressed:
+			# Check which button was touched
+			if _rect_contains(btn_left, pos):
+				_touch_left_id = event.index
+				hold_dir = Vector2i.LEFT
+				btn_left.is_pressed = true
+				btn_left.queue_redraw()
+			elif _rect_contains(btn_right, pos):
+				_touch_right_id = event.index
+				hold_dir = Vector2i.RIGHT
+				btn_right.is_pressed = true
+				btn_right.queue_redraw()
+			elif _rect_contains(btn_pick, pos):
+				_touch_pick_id = event.index
+				btn_pick.is_pressed = true
+				btn_pick.queue_redraw()
+				_try_dig_down_or_facing()
+		else:
+			# Release: clear by touch index
+			if event.index == _touch_left_id:
+				_touch_left_id = -1
+				hold_dir = Vector2i.ZERO
+				btn_left.is_pressed = false
+				btn_left.queue_redraw()
+			if event.index == _touch_right_id:
+				_touch_right_id = -1
+				if hold_dir == Vector2i.RIGHT:
+					hold_dir = Vector2i.ZERO
+				btn_right.is_pressed = false
+				btn_right.queue_redraw()
+			if event.index == _touch_pick_id:
+				_touch_pick_id = -1
+				btn_pick.is_pressed = false
+				btn_pick.queue_redraw()
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		var pos = event.position
+		if event.pressed:
+			if _rect_contains(btn_left, pos):
+				hold_dir = Vector2i.LEFT
+				btn_left.is_pressed = true
+				btn_left.queue_redraw()
+			elif _rect_contains(btn_right, pos):
+				hold_dir = Vector2i.RIGHT
+				btn_right.is_pressed = true
+				btn_right.queue_redraw()
+			elif _rect_contains(btn_pick, pos):
+				btn_pick.is_pressed = true
+				btn_pick.queue_redraw()
+				_try_dig_down_or_facing()
+		else:
+			if hold_dir == Vector2i.LEFT and _rect_contains(btn_left, pos):
+				hold_dir = Vector2i.ZERO
+				btn_left.is_pressed = false
+				btn_left.queue_redraw()
+			if hold_dir == Vector2i.RIGHT and _rect_contains(btn_right, pos):
+				hold_dir = Vector2i.ZERO
+				btn_right.is_pressed = false
+				btn_right.queue_redraw()
+			btn_pick.is_pressed = false
+			btn_pick.queue_redraw()
+
+func _rect_contains(ctrl: Control, screen_pos: Vector2) -> bool:
+	# Convert screen position to control local space via its global rect
+	var gr = ctrl.get_global_rect()
+	return gr.has_point(screen_pos)
 
 func _apply_theme() -> void:
 	var pal = SettingsManager.get_palette()

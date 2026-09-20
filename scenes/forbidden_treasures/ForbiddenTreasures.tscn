@@ -79,6 +79,7 @@ anchor_bottom = 1.0
 offset_top = -140.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 
 [node name="LeftArrow" type="Control" parent="HUD/TouchControls"]
 layout_mode = 1
