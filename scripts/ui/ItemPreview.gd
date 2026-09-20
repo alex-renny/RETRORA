@@ -22,12 +22,13 @@ func _draw():
 	var center = Vector2(w * 0.5, h * 0.5)
 
 	# 1. Background tile
-	var bg_col = Color(0.07, 0.09, 0.13)
-	var border_col = Color(0.2, 0.3, 0.42)
+	var is_light = SettingsManager.is_light_theme()
+	var bg_col = Color(0.96, 0.97, 0.99) if is_light else Color(0.07, 0.09, 0.13)
+	var border_col = Color(0.85, 0.88, 0.92) if is_light else Color(0.2, 0.3, 0.42)
 	if is_equipped:
-		border_col = Color(0.25, 0.95, 0.5)
+		border_col = Color(0.1, 0.75, 0.4) if is_light else Color(0.25, 0.95, 0.5)
 	elif not is_unlocked:
-		border_col = Color(0.4, 0.3, 0.18)
+		border_col = Color(0.85, 0.65, 0.3) if is_light else Color(0.4, 0.3, 0.18)
 
 	draw_rect(Rect2(1, 1, w - 2, h - 2), bg_col)
 	draw_rect(Rect2(1, 1, w - 2, h - 2), border_col, false, 1.5)
@@ -63,7 +64,8 @@ func _draw():
 
 	# 3. Locked Overlay: dark shade + padlock badge
 	if not is_unlocked:
-		draw_rect(Rect2(1, 1, w - 2, h - 2), Color(0.03, 0.04, 0.06, 0.72))
+		var veil_col = Color(0.1, 0.1, 0.15, 0.48) if is_light else Color(0.03, 0.04, 0.06, 0.72)
+		draw_rect(Rect2(1, 1, w - 2, h - 2), veil_col)
 		_draw_lock_icon(center)
 
 func _draw_lock_icon(c: Vector2):

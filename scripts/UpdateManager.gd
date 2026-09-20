@@ -5,7 +5,7 @@ extends Node
 signal update_available(version_tag: String, apk_url: String, release_notes: String)
 signal update_check_completed(has_update: bool)
 
-const CURRENT_VERSION: String = "v1.2.0"
+const CURRENT_VERSION: String = "v1.3.0"
 const GITHUB_REPO: String = "alex-renny/RETRORA"
 
 var has_checked: bool = false

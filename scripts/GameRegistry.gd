@@ -54,6 +54,20 @@ func _ready():
 		"high_score_key": "hamster_game",
 		"status": "PLAYABLE"
 	})
+	register_game("forbidden_treasures", {
+		"title": "Forbidden Treasures",
+		"scene": "res://scenes/forbidden_treasures/ForbiddenTreasures.tscn",
+		"description": "Nokia classic underground digger! Mine for gold, diamonds, avoid falling boulders, manage H2O, and explore Earth, Snow, and Volcano depths.",
+		"high_score_key": "forbidden_treasures",
+		"status": "PLAYABLE"
+	})
+	register_game("block_fill", {
+		"title": "Block Fill",
+		"scene": "res://scenes/block_fill/BlockFill.tscn",
+		"description": "Satisfying one-stroke puzzle! Fill every single block on the board with a continuous glowing neon line without overlapping.",
+		"high_score_key": "block_fill",
+		"status": "PLAYABLE"
+	})
 
 func register_game(id: String, info: Dictionary) -> void:
 	games[id] = info
@@ -229,6 +243,59 @@ func get_customizer_data(game_id: String) -> Dictionary:
 							{"id": "kitty", "name": "Playful Kitty", "desc": "Pointed cat ears & cute whiskers.", "req": "Whack 50 Animals"},
 							{"id": "panda", "name": "Sleepy Panda", "desc": "Black eye patches & round ears.", "req": "Whack 100 Animals"},
 							{"id": "fox", "name": "Swift Kitsune", "desc": "Amber fur & black-tipped ears.", "req": "Whack 180 Animals"}
+						]
+					}
+				]
+			}
+		"forbidden_treasures":
+			return {
+				"title": "EXPEDITION GEAR",
+				"categories": [
+					{
+						"category_name": "OUTFITS",
+						"category_key": "treasure_outfit",
+						"items": [
+							{"id": "adventurer", "name": "Indiana Explorer", "desc": "Classic fedora hat and leather explorer vest.", "req": "Starter"},
+							{"id": "mountaineer", "name": "Arctic Mountaineer", "desc": "Thermal snow parka & blizzard goggles.", "req": "Reach Snow Level (Lvl 3)"},
+							{"id": "obsidian_scavenger", "name": "Obsidian Miner", "desc": "Fire-resistant hazard armor & respirator mask.", "req": "Reach Volcano Level (Lvl 5)"},
+							{"id": "golden_archaeologist", "name": "Golden Legend", "desc": "Mythic gilded safari suit & diamond headlamp.", "req": "Score $5,000"}
+						]
+					},
+					{
+						"category_name": "PICKAXES",
+						"category_key": "treasure_pick",
+						"items": [
+							{"id": "iron_pick", "name": "Iron Pickaxe", "desc": "Sturdy tempered iron mining pick.", "req": "Starter"},
+							{"id": "diamond_mattock", "name": "Diamond Mattock", "desc": "Sharp crystallized gem-cutting pickaxe.", "req": "Score $1,000"},
+							{"id": "magma_drill", "name": "Magma Drill", "desc": "Molten thermite core industrial pick.", "req": "Score $2,500"},
+							{"id": "celestial_pick", "name": "Celestial Pickaxe", "desc": "Gleaming divine golden artifact pick.", "req": "Score $6,000"}
+						]
+					}
+				]
+			}
+		"block_fill":
+			return {
+				"title": "NEON CUSTOMIZER",
+				"categories": [
+					{
+						"category_name": "NEON PALETTES",
+						"category_key": "block_fill_theme",
+						"items": [
+							{"id": "electric_cyan", "name": "Electric Cyan", "desc": "Classic intense fluorescent cyan blue glow.", "req": "Starter"},
+							{"id": "cyber_violet", "name": "Cyber Violet", "desc": "Deep synthwave purple & magenta luminance.", "req": "Clear Level 5"},
+							{"id": "emerald_matrix", "name": "Emerald Matrix", "desc": "High-tech terminal emerald green hue.", "req": "Clear Level 10"},
+							{"id": "solar_amber", "name": "Solar Amber", "desc": "Radiant molten sunrise gold and orange.", "req": "Clear Level 15"},
+							{"id": "rose_neon", "name": "Rose Quartz", "desc": "Vibrant hot pink and blossom aura.", "req": "Clear Level 25"}
+						]
+					},
+					{
+						"category_name": "TRAIL SPARKS",
+						"category_key": "block_fill_trail",
+						"items": [
+							{"id": "sparkle", "name": "Starlight Sparks", "desc": "Twinkling golden starburst motes.", "req": "Starter"},
+							{"id": "plasma_ring", "name": "Plasma Rings", "desc": "Pulsing concentric electric halos.", "req": "Clear Level 8"},
+							{"id": "bubble_glow", "name": "Prism Bubbles", "desc": "Gentle floating chromatic orbs.", "req": "Clear Level 18"},
+							{"id": "firefly", "name": "Cosmic Fireflies", "desc": "Drifting bioluminescent embers.", "req": "Clear Level 30"}
 						]
 					}
 				]

@@ -116,7 +116,10 @@ func _draw():
 
 	# 3. Animal Character (Pops out between back and front mound)
 	if current_state != State.EMPTY:
-		var pop_y = lerp(12.0, -18.0, emerge_progress)
+		var breath = sin(Time.get_ticks_msec() * 0.006) * 1.2 if current_state == State.PEEKING else 0.0
+		var pop_y = lerp(12.0, -18.0, emerge_progress) + breath
+		if current_state == State.WHACKED:
+			pop_y += 5.0 # Flattened slightly on impact
 		var animal_center = center + Vector2(0, pop_y)
 		_draw_animal(animal_center)
 
@@ -125,7 +128,7 @@ func _draw():
 
 	# 5. Whacked Effects (Dizzy spinning stars)
 	if current_state == State.WHACKED:
-		var pop_y = lerp(12.0, -18.0, emerge_progress)
+		var pop_y = lerp(12.0, -18.0, emerge_progress) + 5.0
 		var head_center = center + Vector2(0, pop_y - 20)
 		_draw_dizzy_stars(head_center)
 
@@ -413,10 +416,15 @@ func _draw_eyes(pos: Vector2):
 		_draw_x_eye(pos + Vector2(-8, -10))
 		_draw_x_eye(pos + Vector2(8, -10))
 	else:
-		draw_circle(pos + Vector2(-8, -10), 3.5, Color(0.08, 0.08, 0.08))
-		draw_circle(pos + Vector2(8, -10), 3.5, Color(0.08, 0.08, 0.08))
-		draw_circle(pos + Vector2(-7, -11), 1.2, Color.WHITE)
-		draw_circle(pos + Vector2(9, -11), 1.2, Color.WHITE)
+		# Large Anime Pupils
+		draw_circle(pos + Vector2(-8, -10), 3.8, Color(0.08, 0.08, 0.10))
+		draw_circle(pos + Vector2(8, -10), 3.8, Color(0.08, 0.08, 0.10))
+		# Primary Large Specular Catchlight
+		draw_circle(pos + Vector2(-9.0, -11.5), 1.5, Color.WHITE)
+		draw_circle(pos + Vector2(7.0, -11.5), 1.5, Color.WHITE)
+		# Secondary Mini Sparkle Catchlight
+		draw_circle(pos + Vector2(-6.8, -8.8), 0.8, Color(1.0, 1.0, 1.0, 0.85))
+		draw_circle(pos + Vector2(9.2, -8.8), 0.8, Color(1.0, 1.0, 1.0, 0.85))
 
 func _draw_whiskers(pos: Vector2):
 	draw_line(pos + Vector2(-4, -4), pos + Vector2(-17, -5), Color(0.35, 0.25, 0.2), 1.0)

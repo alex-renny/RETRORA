@@ -59,6 +59,21 @@ func _process(delta: float):
 		if wide_timer <= 0.0:
 			set_wide(false)
 
+	# Recover squash scale
+	if sprite:
+		sprite.scale = sprite.scale.lerp(Vector2.ONE, 14.0 * delta)
+	queue_redraw()
+
+func on_hit():
+	if sprite:
+		sprite.scale = Vector2(1.18, 0.78)
+
+func _draw():
+	# Metallic top surface highlight reflection
+	draw_line(Vector2(-half_width + 5, -6), Vector2(half_width - 5, -6), Color(1.0, 1.0, 1.0, 0.65), 1.5)
+	# Bottom shadow line
+	draw_line(Vector2(-half_width + 4, 6), Vector2(half_width - 4, 6), Color(0.0, 0.0, 0.0, 0.35), 1.5)
+
 func _unhandled_input(event: InputEvent):
 	# Mouse / Touch Dragging
 	if event is InputEventMouseMotion:

@@ -55,6 +55,9 @@ func _ready():
 	high_score = SaveManager.get_high_score("brick_breaker")
 	current_arena_id = SaveManager.get_equipped("brick_arena", "midnight_vault")
 
+	SettingsManager.theme_changed.connect(func(_thm): _apply_theme())
+	_apply_theme()
+
 	_setup_customizer()
 
 	if customizer_btn:
@@ -63,6 +66,23 @@ func _ready():
 	retry_btn.pressed.connect(restart_game)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_advance_level)
+
+func _apply_theme():
+	var p = SettingsManager.get_palette()
+	score_label.add_theme_color_override("font_color", p["text_accent"])
+	level_label.add_theme_color_override("font_color", p["text_primary"])
+	lives_label.add_theme_color_override("font_color", p["accent_danger"])
+
+	var top_bar = get_node_or_null("HUD/TopBar")
+	if top_bar is Panel:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = p["card_bg"]
+		sb.set_border_width_all(1)
+		sb.border_color = p["card_border"]
+		sb.corner_radius_bottom_left = 10
+		sb.corner_radius_bottom_right = 10
+		top_bar.add_theme_stylebox_override("panel", sb)
+	queue_redraw()
 
 	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
 	if btn_container and not btn_container.has_node("UnlocksButton"):
@@ -310,28 +330,33 @@ func _check_unlock_milestones():
 		SaveManager.unlock("brick_paddle", "fire_striker", "Fire Striker")
 
 func _draw():
-	var wall_color = Color("1e293b")
-	var border_color = Color("38bdf8")
+	var is_light = SettingsManager.is_light_theme()
+	var wall_color = Color(0.90, 0.93, 0.96) if is_light else Color("1e293b")
+	var border_color = Color(0.1, 0.6, 0.95) if is_light else Color("38bdf8")
 
 	match current_arena_id:
 		"emerald_matrix":
-			wall_color = Color(0.04, 0.12, 0.08)
-			border_color = Color(0.1, 0.85, 0.45)
+			wall_color = Color(0.88, 0.96, 0.90) if is_light else Color(0.04, 0.12, 0.08)
+			border_color = Color(0.1, 0.75, 0.40) if is_light else Color(0.1, 0.85, 0.45)
 		"crimson_chasm":
-			wall_color = Color(0.15, 0.04, 0.05)
-			border_color = Color(1.0, 0.25, 0.3)
+			wall_color = Color(0.98, 0.90, 0.90) if is_light else Color(0.15, 0.04, 0.05)
+			border_color = Color(0.92, 0.20, 0.30) if is_light else Color(1.0, 0.25, 0.3)
 		_: # midnight_vault
-			wall_color = Color("1e293b")
-			border_color = Color("38bdf8")
+			wall_color = Color(0.90, 0.93, 0.96) if is_light else Color("1e293b")
+			border_color = Color(0.1, 0.60, 0.95) if is_light else Color("38bdf8")
+
+	# Playfield Background
+	if is_light:
+		draw_rect(Rect2(12, 42, 336, 598), Color(0.97, 0.98, 1.0))
 
 	# Top Wall
 	draw_rect(Rect2(0, 0, 360, 42), wall_color)
-	draw_line(Vector2(0, 42), Vector2(360, 42), border_color, 2.0)
+	draw_line(Vector2(0, 42), Vector2(360, 42), border_color, 2.5)
 
 	# Left Wall
 	draw_rect(Rect2(0, 42, 12, 600), wall_color)
-	draw_line(Vector2(12, 42), Vector2(12, 640), border_color, 2.0)
+	draw_line(Vector2(12, 42), Vector2(12, 640), border_color, 2.5)
 
 	# Right Wall
 	draw_rect(Rect2(348, 42, 12, 600), wall_color)
-	draw_line(Vector2(348, 42), Vector2(348, 640), border_color, 2.0)
+	draw_line(Vector2(348, 42), Vector2(348, 640), border_color, 2.5)

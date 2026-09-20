@@ -54,7 +54,27 @@ func _ready():
 	_setup_holes()
 	_bind_ui()
 	_setup_customizer()
+
+	SettingsManager.theme_changed.connect(func(_thm): _apply_theme())
+	_apply_theme()
+
 	_reset_game()
+
+func _apply_theme():
+	var p = SettingsManager.get_palette()
+	score_label.add_theme_color_override("font_color", p["text_primary"])
+	combo_label.add_theme_color_override("font_color", p["accent_warning"])
+
+	var top_bar = get_node_or_null("HUD/TopBar")
+	if top_bar is Panel:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = p["card_bg"]
+		sb.set_border_width_all(1)
+		sb.border_color = p["card_border"]
+		sb.corner_radius_bottom_left = 10
+		sb.corner_radius_bottom_right = 10
+		top_bar.add_theme_stylebox_override("panel", sb)
+	queue_redraw()
 
 func _setup_holes():
 	holes.clear()
@@ -327,18 +347,27 @@ func _unhandled_input(event: InputEvent):
 			holes[idx].try_whack()
 
 func _draw():
-	# 1. Sky Top
-	draw_rect(Rect2(0, 0, 360, 95), Color(0.32, 0.76, 0.98))
+	var is_light = SettingsManager.is_light_theme()
 
-	# Clouds
-	_draw_cloud(Vector2(55, 38), 24)
-	_draw_cloud(Vector2(290, 42), 22)
+	# 1. Sky Top
+	var sky_col = Color(0.38, 0.78, 0.98) if is_light else Color(0.08, 0.12, 0.22)
+	draw_rect(Rect2(0, 0, 360, 95), sky_col)
+
+	# Clouds / Stars
+	if is_light:
+		_draw_cloud(Vector2(55, 38), 24)
+		_draw_cloud(Vector2(290, 42), 22)
+	else:
+		# Moon in night sky
+		draw_circle(Vector2(290, 35), 14.0, Color(0.95, 0.95, 0.8))
+		draw_circle(Vector2(285, 32), 12.0, Color(0.08, 0.12, 0.22))
 
 	# 2. Horizon Bushes
 	_draw_horizon_bushes()
 
 	# 3. Main Grassy Playfield
-	draw_rect(Rect2(0, 95, 360, 545), Color(0.38, 0.86, 0.32))
+	var grass_col = Color(0.38, 0.86, 0.32) if is_light else Color(0.12, 0.28, 0.16)
+	draw_rect(Rect2(0, 95, 360, 545), grass_col)
 
 	# Decorative blades of grass
 	_draw_grass_details()

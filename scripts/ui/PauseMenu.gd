@@ -1,5 +1,7 @@
 extends Control
 
+@onready var color_rect: ColorRect = $ColorRect
+@onready var title_lbl: Label = $CenterContainer/VBoxContainer/Title
 @onready var resume_btn: Button = $CenterContainer/VBoxContainer/ResumeButton
 @onready var restart_btn: Button = $CenterContainer/VBoxContainer/RestartButton
 @onready var settings_btn: Button = $CenterContainer/VBoxContainer/SettingsButton
@@ -17,6 +19,25 @@ func _ready():
 		get_tree().paused = false
 		GameManager.go_to_game_select()
 	)
+	_apply_palette()
+
+func _apply_palette():
+	var pal = SettingsManager.get_palette()
+	if color_rect:
+		color_rect.color = pal["modal_bg"]
+	if title_lbl:
+		title_lbl.modulate = pal["text_primary"]
+
+	var buttons = [resume_btn, restart_btn, settings_btn, menu_btn]
+	for btn in buttons:
+		if btn:
+			var b_style = StyleBoxFlat.new()
+			b_style.set_corner_radius_all(8)
+			b_style.bg_color = pal["card_bg"]
+			b_style.border_color = pal["card_border"]
+			b_style.set_border_width_all(1.5)
+			btn.add_theme_stylebox_override("normal", b_style)
+			btn.add_theme_color_override("font_color", pal["text_primary"])
 
 func _unhandled_input(event: InputEvent):
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:

@@ -87,6 +87,11 @@ func _process(delta: float):
 	position.x = clamp(position.x, 20.0, 340.0)
 	position.y = clamp(position.y, 380.0, 600.0)
 
+	# Dynamic strafe banking roll
+	var target_rot = deg_to_rad(clamp(dir.x * 16.0, -18.0, 18.0))
+	rotation = lerp_angle(rotation, target_rot, 12.0 * delta)
+	queue_redraw()
+
 	# 2. Weapon Firing
 	fire_timer -= delta
 	if is_firing and fire_timer <= 0.0:
@@ -96,27 +101,22 @@ func _process(delta: float):
 func _fire_lasers():
 	match current_jet_id:
 		"interceptor":
-			# Triple spread shot
 			_spawn_laser(position + Vector2(-10, -8), Vector2(-120, -500))
 			_spawn_laser(position + Vector2(0, -14), Vector2(0, -540))
 			_spawn_laser(position + Vector2(10, -8), Vector2(120, -500))
 		"plasma_cruiser":
-			# Dual heavy bolts
 			_spawn_laser(position + Vector2(-10, -14), Vector2(0, -520))
 			_spawn_laser(position + Vector2(10, -14), Vector2(0, -520))
 		"phantom_bomber":
-			# Rapid quad blasters
 			_spawn_laser(position + Vector2(-12, -6), Vector2(0, -550))
 			_spawn_laser(position + Vector2(-4, -12), Vector2(0, -550))
 			_spawn_laser(position + Vector2(4, -12), Vector2(0, -550))
 			_spawn_laser(position + Vector2(12, -6), Vector2(0, -550))
 		"golden_valkyrie":
-			# High-powered piercing spread
 			_spawn_laser(position + Vector2(-8, -12), Vector2(-60, -550))
 			_spawn_laser(position + Vector2(0, -16), Vector2(0, -580))
 			_spawn_laser(position + Vector2(8, -12), Vector2(60, -550))
 		_:
-			# Starfighter standard twin lasers
 			_spawn_laser(position + Vector2(-8, -12), Vector2(0, -500))
 			_spawn_laser(position + Vector2(8, -12), Vector2(0, -500))
 
@@ -165,94 +165,146 @@ func _draw():
 		_:
 			_draw_starfighter()
 
-func _draw_starfighter():
-	# Cyan/Blue Starfighter
+func _draw_plasma(pos: Vector2, outer_col: Color, inner_col: Color, length: float):
+	var w = 3.2
 	draw_polygon(PackedVector2Array([
-		Vector2(0, -16),
-		Vector2(-14, 12),
+		pos + Vector2(-w, 0),
+		pos + Vector2(0, length),
+		pos + Vector2(w, 0)
+	]), PackedColorArray([outer_col]))
+	draw_polygon(PackedVector2Array([
+		pos + Vector2(-w * 0.5, 0),
+		pos + Vector2(0, length * 0.6),
+		pos + Vector2(w * 0.5, 0)
+	]), PackedColorArray([inner_col]))
+
+func _draw_starfighter():
+	var fl = 7.0 + randf_range(0.0, 7.0)
+	# Twin pulsating blue plasma thrusters
+	_draw_plasma(Vector2(-6, 9), Color(0.1, 0.6, 1.0), Color(0.8, 0.95, 1.0), fl)
+	_draw_plasma(Vector2(6, 9), Color(0.1, 0.6, 1.0), Color(0.8, 0.95, 1.0), fl)
+
+	# Main Fuselage
+	draw_polygon(PackedVector2Array([
+		Vector2(0, -18),
+		Vector2(-15, 12),
 		Vector2(-6, 8),
 		Vector2(0, 12),
 		Vector2(6, 8),
-		Vector2(14, 12)
-	]), PackedColorArray([Color(0.2, 0.6, 1.0)]))
-	# Canopy
+		Vector2(15, 12)
+	]), PackedColorArray([Color(0.18, 0.55, 0.95)]))
+
+	# Inner wing panels
+	draw_line(Vector2(0, -16), Vector2(-12, 10), Color(0.4, 0.75, 1.0), 1.5)
+	draw_line(Vector2(0, -16), Vector2(12, 10), Color(0.4, 0.75, 1.0), 1.5)
+
+	# High-tech Canopy with Specular Glare
 	draw_polygon(PackedVector2Array([
-		Vector2(0, -10),
-		Vector2(-3, 0),
-		Vector2(3, 0)
-	]), PackedColorArray([Color(0.8, 0.95, 1.0)]))
-	# Thruster flames
-	draw_line(Vector2(-6, 9), Vector2(-6, 15), Color(1.0, 0.6, 0.1), 2.0)
-	draw_line(Vector2(6, 9), Vector2(6, 15), Color(1.0, 0.6, 0.1), 2.0)
+		Vector2(0, -11),
+		Vector2(-3.5, 0),
+		Vector2(3.5, 0)
+	]), PackedColorArray([Color(0.85, 0.98, 1.0)]))
+	draw_line(Vector2(-2, -9), Vector2(2, -3), Color.WHITE, 1.5)
 
 func _draw_interceptor():
+	var fl = 9.0 + randf_range(0.0, 8.0)
+	# Center afterburner plume
+	_draw_plasma(Vector2(0, 12), Color(1.0, 0.35, 0.05), Color(1.0, 0.95, 0.3), fl)
+
 	# Red/Orange Swift Dart
 	draw_polygon(PackedVector2Array([
-		Vector2(0, -18),
-		Vector2(-16, 8),
+		Vector2(0, -20),
+		Vector2(-17, 8),
 		Vector2(-10, 4),
 		Vector2(-4, 12),
 		Vector2(4, 12),
 		Vector2(10, 4),
-		Vector2(16, 8)
-	]), PackedColorArray([Color(1.0, 0.25, 0.2)]))
-	# Swept wing edges
-	draw_line(Vector2(-16, 8), Vector2(0, -18), Color(1.0, 0.8, 0.2), 1.5)
-	draw_line(Vector2(16, 8), Vector2(0, -18), Color(1.0, 0.8, 0.2), 1.5)
-	# Center yellow canopy
-	draw_circle(Vector2(0, -3), 3.0, Color(1.0, 0.9, 0.2))
+		Vector2(17, 8)
+	]), PackedColorArray([Color(0.98, 0.22, 0.18)]))
+
+	# Gold wing leading edges
+	draw_line(Vector2(-17, 8), Vector2(0, -20), Color(1.0, 0.85, 0.2), 1.8)
+	draw_line(Vector2(17, 8), Vector2(0, -20), Color(1.0, 0.85, 0.2), 1.8)
+
+	# Visor Canopy
+	draw_circle(Vector2(0, -3), 3.4, Color(1.0, 0.92, 0.2))
+	draw_circle(Vector2(-1, -4), 1.0, Color.WHITE)
 
 func _draw_plasma_cruiser():
-	# Heavy Armored Emerald Cruiser
-	draw_rect(Rect2(-12, -8, 24, 18), Color(0.1, 0.7, 0.4))
-	draw_polygon(PackedVector2Array([
-		Vector2(0, -16),
-		Vector2(-12, -8),
-		Vector2(12, -8)
-	]), PackedColorArray([Color(0.15, 0.85, 0.5)]))
-	# Side armor pods
-	draw_rect(Rect2(-16, -2, 5, 14), Color(0.08, 0.5, 0.3))
-	draw_rect(Rect2(11, -2, 5, 14), Color(0.08, 0.5, 0.3))
-	# Core energy glow
-	draw_circle(Vector2(0, 1), 4.0, Color(0.3, 1.0, 0.7))
+	var fl = 6.5 + randf_range(0.0, 5.0)
+	# Dual Emerald Plasma plumes
+	_draw_plasma(Vector2(-9, 10), Color(0.0, 0.85, 0.45), Color(0.8, 1.0, 0.9), fl)
+	_draw_plasma(Vector2(9, 10), Color(0.0, 0.85, 0.45), Color(0.8, 1.0, 0.9), fl)
 
-func _draw_phantom_bomber():
-	# Sleek Violet Stealth Jet
+	# Heavy Armored Emerald Cruiser
+	draw_rect(Rect2(-12, -8, 24, 18), Color(0.12, 0.65, 0.38))
 	draw_polygon(PackedVector2Array([
 		Vector2(0, -17),
-		Vector2(-18, 10),
+		Vector2(-12, -8),
+		Vector2(12, -8)
+	]), PackedColorArray([Color(0.18, 0.82, 0.48)]))
+
+	# Heavy Armor Pods
+	draw_rect(Rect2(-17, -2, 6, 14), Color(0.08, 0.48, 0.28))
+	draw_rect(Rect2(11, -2, 6, 14), Color(0.08, 0.48, 0.28))
+
+	# Pulsing Arc Reactor Core
+	var reactor_pulse = 0.8 + 0.2 * sin(Time.get_ticks_msec() * 0.01)
+	draw_circle(Vector2(0, 1), 4.5 * reactor_pulse, Color(0.3, 1.0, 0.75))
+	draw_circle(Vector2(0, 1), 2.0, Color.WHITE)
+
+func _draw_phantom_bomber():
+	var fl = 7.5 + randf_range(0.0, 6.0)
+	_draw_plasma(Vector2(-5, 12), Color(0.85, 0.15, 0.9), Color(1.0, 0.7, 1.0), fl)
+	_draw_plasma(Vector2(5, 12), Color(0.85, 0.15, 0.9), Color(1.0, 0.7, 1.0), fl)
+
+	# Sleek Violet Stealth Jet
+	draw_polygon(PackedVector2Array([
+		Vector2(0, -18),
+		Vector2(-19, 10),
 		Vector2(-8, 14),
 		Vector2(0, 8),
 		Vector2(8, 14),
-		Vector2(18, 10)
-	]), PackedColorArray([Color(0.35, 0.15, 0.55)]))
-	# Neon pink wing panels
-	draw_line(Vector2(-14, 8), Vector2(0, -12), Color(0.9, 0.2, 0.8), 2.0)
-	draw_line(Vector2(14, 8), Vector2(0, -12), Color(0.9, 0.2, 0.8), 2.0)
-	# Twin cockpit sensors
-	draw_circle(Vector2(-3, -2), 2.0, Color(1.0, 0.2, 0.8))
-	draw_circle(Vector2(3, -2), 2.0, Color(1.0, 0.2, 0.8))
+		Vector2(19, 10)
+	]), PackedColorArray([Color(0.32, 0.12, 0.52)]))
+
+	# Neon pink wing panel edges
+	draw_line(Vector2(-15, 8), Vector2(0, -14), Color(0.95, 0.2, 0.85), 2.0)
+	draw_line(Vector2(15, 8), Vector2(0, -14), Color(0.95, 0.2, 0.85), 2.0)
+
+	# Twin sensor eye visors
+	draw_circle(Vector2(-3.5, -2), 2.2, Color(1.0, 0.2, 0.85))
+	draw_circle(Vector2(3.5, -2), 2.2, Color(1.0, 0.2, 0.85))
+	draw_circle(Vector2(-3.5, -2.5), 0.8, Color.WHITE)
+	draw_circle(Vector2(3.5, -2.5), 0.8, Color.WHITE)
 
 func _draw_golden_valkyrie():
+	var fl = 9.0 + randf_range(0.0, 7.0)
+	_draw_plasma(Vector2(-6, 12), Color(1.0, 0.75, 0.1), Color(1.0, 1.0, 0.8), fl)
+	_draw_plasma(Vector2(6, 12), Color(1.0, 0.75, 0.1), Color(1.0, 1.0, 0.8), fl)
+
 	# Celestial Gold God-Ship
 	draw_polygon(PackedVector2Array([
-		Vector2(0, -20),
-		Vector2(-15, -4),
-		Vector2(-18, 12),
+		Vector2(0, -21),
+		Vector2(-16, -4),
+		Vector2(-19, 12),
 		Vector2(-6, 8),
 		Vector2(0, 14),
 		Vector2(6, 8),
-		Vector2(18, 12),
-		Vector2(15, -4)
-	]), PackedColorArray([Color(1.0, 0.82, 0.1)]))
-	# Golden wing trims
-	draw_line(Vector2(-18, 12), Vector2(0, -20), Color(1.0, 1.0, 0.6), 2.0)
-	draw_line(Vector2(18, 12), Vector2(0, -20), Color(1.0, 1.0, 0.6), 2.0)
-	# Celestial diamond core
+		Vector2(19, 12),
+		Vector2(16, -4)
+	]), PackedColorArray([Color(1.0, 0.82, 0.08)]))
+
+	# Divine Wing Trims
+	draw_line(Vector2(-19, 12), Vector2(0, -21), Color(1.0, 1.0, 0.65), 2.2)
+	draw_line(Vector2(19, 12), Vector2(0, -21), Color(1.0, 1.0, 0.65), 2.2)
+
+	# Celestial Diamond Crystal Core
 	draw_polygon(PackedVector2Array([
-		Vector2(0, -8),
-		Vector2(-4, -2),
-		Vector2(0, 4),
-		Vector2(4, -2)
-	]), PackedColorArray([Color(0.2, 0.9, 1.0)]))
+		Vector2(0, -9),
+		Vector2(-4.5, -2),
+		Vector2(0, 5),
+		Vector2(4.5, -2)
+	]), PackedColorArray([Color(0.2, 0.95, 1.0)]))
+	draw_circle(Vector2(0, -1), 1.5, Color.WHITE)
 

@@ -9,6 +9,7 @@ var current_speed: float = BASE_SPEED
 var is_stuck_to_paddle: bool = true
 var paddle_ref: Node2D = null
 var current_style_id: String = "silver_sphere"
+var trail: Array[Vector2] = []
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -34,12 +35,14 @@ func stick_to_paddle(p: Node2D):
 	is_stuck_to_paddle = true
 	velocity = Vector2.ZERO
 	current_speed = BASE_SPEED
+	trail.clear()
 	visible = true
 
 func launch():
 	if not is_stuck_to_paddle:
 		return
 	is_stuck_to_paddle = false
+	trail.clear()
 	var launch_dir = Vector2(randf_range(-0.25, 0.25), -1.0).normalized()
 	velocity = launch_dir * current_speed
 
@@ -52,6 +55,12 @@ func _physics_process(delta: float):
 	if is_stuck_to_paddle and paddle_ref and is_instance_valid(paddle_ref):
 		position = paddle_ref.position + Vector2(0, -14)
 		return
+
+	# Trail tracking
+	trail.push_front(position)
+	if trail.size() > 8:
+		trail.pop_back()
+	queue_redraw()
 
 	# Wall bouncing safety
 	if position.x <= 14.0 and velocity.x < 0:
@@ -80,6 +89,8 @@ func _physics_process(delta: float):
 			var hit_offset = clamp((position.x - collider.position.x) / half_w, -1.0, 1.0)
 			var bounce_angle = hit_offset * deg_to_rad(65.0)
 			velocity = Vector2(sin(bounce_angle), -cos(bounce_angle)) * current_speed
+			if collider.has_method("on_hit"):
+				collider.on_hit()
 		elif collider and collider.has_method("hit"):
 			# Struck a Brick!
 			collider.hit()
@@ -94,3 +105,26 @@ func _physics_process(delta: float):
 		if abs(velocity.y) < 40.0:
 			velocity.y = -60.0 if velocity.y < 0 else 60.0
 			velocity = velocity.normalized() * current_speed
+
+func _draw():
+	# 1. Motion Blur Comet Trail
+	if not is_stuck_to_paddle and trail.size() > 1:
+		var trail_col = Color(0.3, 0.8, 1.0)
+		match current_style_id:
+			"fireball_comet":
+				trail_col = Color(1.0, 0.45, 0.1)
+			"neon_prism":
+				trail_col = Color(0.9, 0.2, 1.0)
+			_:
+				trail_col = Color(0.6, 0.85, 1.0)
+
+		for i in range(trail.size()):
+			var rel_pos = trail[i] - position
+			var progress = 1.0 - float(i) / float(trail.size())
+			var alpha = progress * 0.42
+			var rad = 5.0 * progress
+			draw_circle(rel_pos, rad, Color(trail_col.r, trail_col.g, trail_col.b, alpha))
+
+	# 2. 3D Specular Highlight & Glint
+	draw_circle(Vector2(-1.8, -1.8), 2.0, Color(1.0, 1.0, 1.0, 0.65))
+	draw_circle(Vector2(-2.2, -2.2), 0.9, Color.WHITE)

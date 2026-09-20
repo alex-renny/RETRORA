@@ -23,9 +23,15 @@ func _ready():
 	near_miss_label.visible = false
 	game_over_panel.visible = false
 
+	SettingsManager.theme_changed.connect(func(_thm): _apply_theme())
+	_apply_theme()
+
 	# Wire HUD buttons
 	$HUD/TopBar/PauseButton.pressed.connect(func(): pause_pressed.emit())
-	$HUD/TopBar/ThemeButton.pressed.connect(func(): theme_toggle_pressed.emit())
+	$HUD/TopBar/ThemeButton.pressed.connect(func():
+		SettingsManager.toggle_theme()
+		theme_toggle_pressed.emit()
+	)
 	
 	# Wire Touch steer buttons
 	$HUD/TouchControls/LeftButton.button_down.connect(func(): steer_left_pressed.emit())
@@ -38,6 +44,26 @@ func _ready():
 	# Wire Game Over buttons
 	$GameOverPanel/VBox/BtnContainer/RetryButton.pressed.connect(func(): retry_pressed.emit())
 	$GameOverPanel/VBox/BtnContainer/MenuButton.pressed.connect(func(): menu_pressed.emit())
+
+func _apply_theme():
+	var p = SettingsManager.get_palette()
+	distance_label.add_theme_color_override("font_color", p["text_primary"])
+	best_label.add_theme_color_override("font_color", p["text_secondary"])
+
+	var thm_btn = get_node_or_null("HUD/TopBar/ThemeButton")
+	if thm_btn is Button:
+		thm_btn.text = "☀️ LIGHT" if SettingsManager.is_light_theme() else "🌙 DARK"
+		thm_btn.add_theme_color_override("font_color", p["text_accent"])
+
+	var top_bar = get_node_or_null("HUD/TopBar")
+	if top_bar is Panel:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = p["card_bg"]
+		sb.set_border_width_all(1)
+		sb.border_color = p["card_border"]
+		sb.corner_radius_bottom_left = 10
+		sb.corner_radius_bottom_right = 10
+		top_bar.add_theme_stylebox_override("panel", sb)
 
 func _process(delta: float):
 	if near_miss_timer > 0.0:

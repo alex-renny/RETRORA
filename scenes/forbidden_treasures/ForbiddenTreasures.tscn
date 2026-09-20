@@ -1,0 +1,212 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/forbidden_treasures/ForbiddenTreasuresController.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/forbidden_treasures/CaveGrid.gd" id="2_grid"]
+[ext_resource type="Script" path="res://scripts/forbidden_treasures/Explorer.gd" id="3_explorer"]
+[ext_resource type="Script" path="res://scripts/forbidden_treasures/RealisticTouchButton.gd" id="4_touch_btn"]
+[ext_resource type="PackedScene" path="res://scenes/ui/CustomizerModal.tscn" id="5_modal"]
+
+[node name="ForbiddenTreasures" type="Node2D"]
+script = ExtResource("1_ctrl")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(180, 320)
+
+[node name="CaveGrid" type="Node2D" parent="."]
+script = ExtResource("2_grid")
+
+[node name="Explorer" type="Node2D" parent="."]
+position = Vector2(180, 96)
+script = ExtResource("3_explorer")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="HBoxContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = 54.0
+grow_horizontal = 2
+theme_override_constants/separation = 8
+
+[node name="TotalCashLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+text = "TOTAL $:
+0"
+
+[node name="CenterHBox" type="HBoxContainer" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="H2OBar" type="ProgressBar" parent="HUD/TopBar/CenterHBox"]
+custom_minimum_size = Vector2(65, 16)
+layout_mode = 2
+size_flags_vertical = 4
+value = 100.0
+show_percentage = false
+
+[node name="SkinButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(32, 28)
+layout_mode = 2
+size_flags_vertical = 4
+text = "🎨"
+
+[node name="PauseButton" type="Button" parent="HUD/TopBar"]
+custom_minimum_size = Vector2(32, 28)
+layout_mode = 2
+size_flags_vertical = 4
+text = "||"
+
+[node name="CurrentCashLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+text = "CURRENT $:
+0"
+horizontal_alignment = 2
+
+[node name="TouchControls" type="Control" parent="HUD"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -140.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="LeftArrow" type="Control" parent="HUD/TouchControls"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -100.0
+offset_right = 88.0
+offset_bottom = -24.0
+grow_vertical = 0
+script = ExtResource("4_touch_btn")
+style = 0
+
+[node name="RightArrow" type="Control" parent="HUD/TouchControls"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 96.0
+offset_top = -100.0
+offset_right = 172.0
+offset_bottom = -24.0
+grow_vertical = 0
+script = ExtResource("4_touch_btn")
+style = 1
+
+[node name="PickaxeButton" type="Control" parent="HUD/TouchControls"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -104.0
+offset_top = -108.0
+offset_right = -16.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+script = ExtResource("4_touch_btn")
+style = 2
+
+[node name="LevelClearPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -90.0
+offset_right = 140.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/LevelClearPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ClearTitle" type="Label" parent="HUD/LevelClearPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "ZONE CLEARED!"
+horizontal_alignment = 1
+
+[node name="ClearBonus" type="Label" parent="HUD/LevelClearPanel/VBox"]
+layout_mode = 2
+text = "Level Clear Bonus: +$500"
+horizontal_alignment = 1
+
+[node name="NextLevelBtn" type="Button" parent="HUD/LevelClearPanel/VBox"]
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "DESCEND DEEPER"
+
+[node name="GameOverPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -100.0
+offset_right = 140.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="GameOverTitle" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "EXPEDITION FAILED"
+horizontal_alignment = 1
+
+[node name="ReasonLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "Out of H2O!"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+text = "TOTAL WEALTH: $0"
+horizontal_alignment = 1
+
+[node name="BtnContainer" type="HBoxContainer" parent="HUD/GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="RetryBtn" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuBtn" type="Button" parent="HUD/GameOverPanel/VBox/BtnContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+text = "MENU"
+
+[node name="CustomizerModal" parent="HUD" instance=ExtResource("5_modal")]
+visible = false

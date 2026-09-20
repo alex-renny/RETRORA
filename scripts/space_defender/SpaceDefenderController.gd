@@ -55,6 +55,9 @@ func _ready():
 	high_score = SaveManager.get_high_score("space_defender")
 	_init_starfield()
 
+	SettingsManager.theme_changed.connect(func(_thm): _apply_theme())
+	_apply_theme()
+
 	player.died.connect(_on_player_died)
 	player.health_changed.connect(_on_player_health_changed)
 
@@ -65,6 +68,23 @@ func _ready():
 	pause_button.pressed.connect(_toggle_pause)
 	retry_btn.pressed.connect(restart_game)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
+
+func _apply_theme():
+	var p = SettingsManager.get_palette()
+	score_label.add_theme_color_override("font_color", p["text_primary"])
+	wave_label.add_theme_color_override("font_color", p["text_accent"])
+	shields_label.add_theme_color_override("font_color", p["accent_success"])
+
+	var top_bar = get_node_or_null("HUD/TopBar")
+	if top_bar is Panel:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = p["card_bg"]
+		sb.set_border_width_all(1)
+		sb.border_color = p["card_border"]
+		sb.corner_radius_bottom_left = 10
+		sb.corner_radius_bottom_right = 10
+		top_bar.add_theme_stylebox_override("panel", sb)
+	queue_redraw()
 
 	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
 	if btn_container and not btn_container.has_node("UnlocksButton"):
@@ -318,9 +338,13 @@ func _toggle_pause():
 		)
 
 func _draw():
-	# Background void
-	draw_rect(Rect2(0, 0, 360, 640), Color(0.03, 0.03, 0.06))
+	var is_light = SettingsManager.is_light_theme()
+	var bg_col = Color(0.12, 0.16, 0.24) if is_light else Color(0.03, 0.03, 0.06)
+	draw_rect(Rect2(0, 0, 360, 640), bg_col)
 
 	# Stars
 	for s in stars:
-		draw_rect(Rect2(s["pos"], Vector2(s["size"], s["size"])), s["color"])
+		var star_col = s["color"]
+		if is_light:
+			star_col = Color(star_col.r, star_col.g, star_col.b, 0.9)
+		draw_rect(Rect2(s["pos"], Vector2(s["size"], s["size"])), star_col)

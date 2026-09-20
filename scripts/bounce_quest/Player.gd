@@ -72,20 +72,31 @@ func _physics_process(delta: float):
 			velocity.y = NORMAL_BOUNCE
 			bounced.emit(false)
 
-		# Squash effect on impact
-		sprite.scale = Vector2(1.35, 0.7)
+		# Impact Squash effect
+		sprite.scale = Vector2(1.42, 0.62)
 	else:
-		# Stretch in mid-air
-		var stretch_y = clamp(1.0 + abs(velocity.y) / 1200.0, 1.0, 1.25)
-		var stretch_x = clamp(1.0 / stretch_y, 0.8, 1.0)
-		sprite.scale = sprite.scale.lerp(Vector2(stretch_x, stretch_y), 10.0 * delta)
+		# Mid-air aerodynamic stretch
+		var stretch_y = clamp(1.0 + abs(velocity.y) / 1100.0, 1.0, 1.30)
+		var stretch_x = clamp(1.0 / stretch_y, 0.76, 1.0)
+		sprite.scale = sprite.scale.lerp(Vector2(stretch_x, stretch_y), 12.0 * delta)
 
 	# Recover scale smoothly
-	sprite.scale = sprite.scale.lerp(Vector2.ONE, 12.0 * delta)
+	sprite.scale = sprite.scale.lerp(Vector2.ONE, 14.0 * delta)
+	queue_redraw()
 
 	# Fall into bottom abyss
 	if position.y > 680.0:
 		take_damage()
+
+func _draw():
+	# 1. Soft Dynamic Ground Shadow
+	var shadow_scale = clamp(1.0 / sprite.scale.y, 0.7, 1.4)
+	draw_circle(Vector2(0, 11), 8.5 * shadow_scale, Color(0, 0, 0, 0.25))
+
+	# 2. 3D Radial Specular Glint & Volumetric Highlight
+	# Specular Crescent Gleam
+	draw_circle(Vector2(-3.5, -3.5), 3.2, Color(1.0, 1.0, 1.0, 0.55))
+	draw_circle(Vector2(-4.2, -4.2), 1.4, Color(1.0, 1.0, 1.0, 0.9)) # Hotspot white gleam
 
 func set_move_dir(dir: float):
 	move_dir = dir

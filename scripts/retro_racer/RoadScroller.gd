@@ -68,18 +68,52 @@ func set_speed(speed: float):
 	scroll_speed = speed
 
 func _draw():
+	var is_light = SettingsManager.is_light_theme()
 	var theme = THEMES.get(current_road_id, THEMES["city"])
 
+	var shoulder_col = theme["shoulder"]
+	var road_col = theme["road"]
+	var edge_col = theme["edge"]
+	var stripes_col = theme["stripes"]
+
+	if is_light:
+		match current_road_id:
+			"desert":
+				shoulder_col = Color(0.96, 0.82, 0.55)
+				road_col = Color(0.65, 0.48, 0.32)
+				stripes_col = Color(1.0, 0.95, 0.7)
+				edge_col = Color(0.85, 0.65, 0.40)
+			"sunset_coast":
+				shoulder_col = Color(0.98, 0.85, 0.92)
+				road_col = Color(0.45, 0.35, 0.55)
+				stripes_col = Color(1.0, 0.65, 0.85)
+				edge_col = Color(0.95, 0.50, 0.70)
+			"lava_gorge":
+				shoulder_col = Color(0.95, 0.75, 0.70)
+				road_col = Color(0.45, 0.22, 0.20)
+				stripes_col = Color(1.0, 0.55, 0.2)
+				edge_col = Color(0.95, 0.40, 0.2)
+			"cyber_neon":
+				shoulder_col = Color(0.85, 0.95, 1.0)
+				road_col = Color(0.20, 0.30, 0.48)
+				stripes_col = Color(0.0, 0.95, 1.0)
+				edge_col = Color(0.85, 0.20, 0.95)
+			_: # city
+				shoulder_col = Color(0.28, 0.75, 0.35) # Lush green grass roadside
+				road_col = Color(0.35, 0.38, 0.45) # Clean gray asphalt
+				stripes_col = Color(1.0, 0.90, 0.25) # Vibrant yellow highway line
+				edge_col = Color(0.85, 0.88, 0.92) # Crisp white curb
+
 	# 1. Draw Shoulders
-	draw_rect(Rect2(0, 0, ROAD_LEFT, 640), theme["shoulder"])
-	draw_rect(Rect2(ROAD_RIGHT, 0, 70, 640), theme["shoulder"])
+	draw_rect(Rect2(0, 0, ROAD_LEFT, 640), shoulder_col)
+	draw_rect(Rect2(ROAD_RIGHT, 0, 70, 640), shoulder_col)
 
 	# 2. Draw Road Surface
-	draw_rect(Rect2(ROAD_LEFT, 0, ROAD_WIDTH, 640), theme["road"])
+	draw_rect(Rect2(ROAD_LEFT, 0, ROAD_WIDTH, 640), road_col)
 
 	# 3. Draw Road Outer Edges
-	draw_line(Vector2(ROAD_LEFT, 0), Vector2(ROAD_LEFT, 640), theme["edge"], 3.0)
-	draw_line(Vector2(ROAD_RIGHT, 0), Vector2(ROAD_RIGHT, 640), theme["edge"], 3.0)
+	draw_line(Vector2(ROAD_LEFT, 0), Vector2(ROAD_LEFT, 640), edge_col, 3.0)
+	draw_line(Vector2(ROAD_RIGHT, 0), Vector2(ROAD_RIGHT, 640), edge_col, 3.0)
 
 	# 4. Draw Dashed Lane Dividers
 	var lane_1_x = 143.0
@@ -87,6 +121,6 @@ func _draw():
 	var y = scroll_offset - TOTAL_STRIPE_CYCLE
 
 	while y < 640.0:
-		draw_rect(Rect2(lane_1_x - 2, y, 4, STRIPE_LENGTH), theme["stripes"])
-		draw_rect(Rect2(lane_2_x - 2, y, 4, STRIPE_LENGTH), theme["stripes"])
+		draw_rect(Rect2(lane_1_x - 2, y, 4, STRIPE_LENGTH), stripes_col)
+		draw_rect(Rect2(lane_2_x - 2, y, 4, STRIPE_LENGTH), stripes_col)
 		y += TOTAL_STRIPE_CYCLE

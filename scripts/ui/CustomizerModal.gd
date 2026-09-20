@@ -31,6 +31,7 @@ func _ready():
 	if close_btn:
 		close_btn.pressed.connect(hide_modal)
 	SaveManager.item_unlocked.connect(_on_item_unlocked_globally)
+	SettingsManager.theme_changed.connect(func(_th): _populate_active_category())
 
 func setup(title_text: String, categories: Array, close_text: String = "BACK TO GAME"):
 	modal_title.text = title_text
@@ -74,16 +75,47 @@ func _build_tabs():
 
 func _update_tab_styles():
 	var tab_buttons = tabs_container.get_children()
+	var pal = SettingsManager.get_palette()
+	var is_light = SettingsManager.is_light_theme()
+
 	for i in range(tab_buttons.size()):
 		var btn = tab_buttons[i] as Button
+		var style = StyleBoxFlat.new()
+		style.set_corner_radius_all(6)
+		style.content_margin_left = 8
+		style.content_margin_right = 8
+
 		if i == active_category_idx:
-			btn.modulate = Color(0.3, 0.9, 1.0)
+			style.bg_color = pal["text_accent"] if is_light else Color(0.2, 0.6, 0.9)
+			btn.modulate = Color.WHITE
 		else:
-			btn.modulate = Color(0.7, 0.7, 0.7)
+			style.bg_color = pal["card_border"]
+			btn.modulate = pal["text_secondary"]
+
+		btn.add_theme_stylebox_override("normal", style)
 
 func _populate_active_category():
 	for c in items_container.get_children():
 		c.queue_free()
+
+	var pal = SettingsManager.get_palette()
+	var is_light = SettingsManager.is_light_theme()
+
+	if modal_backdrop:
+		modal_backdrop.color = pal["modal_bg"]
+	if modal_title:
+		modal_title.modulate = pal["text_primary"]
+
+	if close_btn:
+		var c_style = StyleBoxFlat.new()
+		c_style.set_corner_radius_all(8)
+		c_style.bg_color = pal["card_bg"]
+		c_style.border_color = pal["card_border"]
+		c_style.set_border_width_all(1.5)
+		close_btn.add_theme_stylebox_override("normal", c_style)
+		close_btn.add_theme_color_override("font_color", pal["text_primary"])
+
+	_update_tab_styles()
 
 	if categories_data.is_empty() or active_category_idx >= categories_data.size():
 		return
@@ -105,24 +137,38 @@ func _populate_active_category():
 		card.custom_minimum_size = Vector2(308, 62)
 
 		var style = StyleBoxFlat.new()
-		style.set_corner_radius_all(6)
+		style.set_corner_radius_all(8)
 		style.content_margin_left = 6
 		style.content_margin_right = 6
 		style.content_margin_top = 5
 		style.content_margin_bottom = 5
 
-		if is_equipped:
-			style.bg_color = Color(0.06, 0.16, 0.09, 0.95)
-			style.border_color = Color(0.25, 0.95, 0.5, 0.95)
-			style.set_border_width_all(2)
-		elif is_unlocked:
-			style.bg_color = Color(0.08, 0.12, 0.18, 0.9)
-			style.border_color = Color(0.25, 0.45, 0.65, 0.8)
-			style.set_border_width_all(1)
+		if is_light:
+			if is_equipped:
+				style.bg_color = Color(0.92, 0.98, 0.94, 0.95)
+				style.border_color = pal["accent_success"]
+				style.set_border_width_all(2)
+			elif is_unlocked:
+				style.bg_color = pal["card_bg"]
+				style.border_color = pal["card_border"]
+				style.set_border_width_all(1.5)
+			else:
+				style.bg_color = Color(0.97, 0.95, 0.92, 0.95)
+				style.border_color = Color(0.85, 0.65, 0.3, 0.8)
+				style.set_border_width_all(1)
 		else:
-			style.bg_color = Color(0.07, 0.05, 0.04, 0.92)
-			style.border_color = Color(0.5, 0.35, 0.15, 0.75)
-			style.set_border_width_all(1)
+			if is_equipped:
+				style.bg_color = Color(0.06, 0.16, 0.09, 0.95)
+				style.border_color = Color(0.25, 0.95, 0.5, 0.95)
+				style.set_border_width_all(2)
+			elif is_unlocked:
+				style.bg_color = Color(0.08, 0.12, 0.18, 0.9)
+				style.border_color = Color(0.25, 0.45, 0.65, 0.8)
+				style.set_border_width_all(1)
+			else:
+				style.bg_color = Color(0.07, 0.05, 0.04, 0.92)
+				style.border_color = Color(0.5, 0.35, 0.15, 0.75)
+				style.set_border_width_all(1)
 
 		card.add_theme_stylebox_override("panel", style)
 
@@ -145,20 +191,20 @@ func _populate_active_category():
 		var name_lbl = Label.new()
 		if is_equipped:
 			name_lbl.text = "✓ " + item_name
-			name_lbl.modulate = Color(0.35, 1.0, 0.55)
+			name_lbl.modulate = pal["accent_success"]
 		elif is_unlocked:
 			name_lbl.text = item_name
-			name_lbl.modulate = Color(0.95, 0.95, 1.0)
+			name_lbl.modulate = pal["text_primary"]
 		else:
 			name_lbl.text = "🔒 " + item_name
-			name_lbl.modulate = Color(0.8, 0.7, 0.6)
+			name_lbl.modulate = pal["text_secondary"]
 		name_lbl.add_theme_font_size_override("font_size", 12)
 		text_vbox.add_child(name_lbl)
 
 		var desc_lbl = Label.new()
 		desc_lbl.text = item_desc
 		desc_lbl.add_theme_font_size_override("font_size", 9)
-		desc_lbl.modulate = Color(0.7, 0.75, 0.8) if is_unlocked else Color(0.6, 0.55, 0.5)
+		desc_lbl.modulate = pal["text_secondary"]
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		text_vbox.add_child(desc_lbl)
 
@@ -166,7 +212,7 @@ func _populate_active_category():
 			var req_lbl = Label.new()
 			req_lbl.text = "CRITERIA: %s" % item_req
 			req_lbl.add_theme_font_size_override("font_size", 9)
-			req_lbl.modulate = Color(1.0, 0.75, 0.25)
+			req_lbl.modulate = pal["accent_warning"]
 			req_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			text_vbox.add_child(req_lbl)
 
@@ -179,11 +225,11 @@ func _populate_active_category():
 		if is_equipped:
 			action_btn.text = "EQUIPPED"
 			action_btn.disabled = true
-			action_btn.modulate = Color(0.35, 1.0, 0.55)
+			action_btn.modulate = pal["accent_success"]
 		elif is_unlocked:
 			action_btn.text = "EQUIP"
 			action_btn.disabled = false
-			action_btn.modulate = Color(0.25, 0.85, 1.0)
+			action_btn.modulate = pal["accent_btn"]
 			var cur_key = cat_key
 			var cur_id = item_id
 			action_btn.pressed.connect(func():
@@ -194,7 +240,7 @@ func _populate_active_category():
 		else:
 			action_btn.text = "LOCKED"
 			action_btn.disabled = true
-			action_btn.modulate = Color(0.55, 0.45, 0.35)
+			action_btn.modulate = Color(0.55, 0.5, 0.45)
 
 		hbox.add_child(action_btn)
 		items_container.add_child(card)

@@ -18,7 +18,24 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.04, 0.05, 0.08, 1)
+color = Color(0.97, 0.98, 0.99, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 54.0
+grow_horizontal = 2
+alignment = 2
+
+[node name="ThemeButton" type="Button" parent="TopBar"]
+custom_minimum_size = Vector2(96, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "☀️ LIGHT"
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -29,9 +46,9 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(260, 0)
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]

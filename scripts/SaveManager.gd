@@ -3,6 +3,7 @@ extends Node
 # SaveManager singleton handles persistent JSON save data for RETRORA.
 
 signal item_unlocked(category: String, item_id: String, item_name: String)
+signal item_equipped(category: String, item_id: String)
 
 const SAVE_PATH = "user://save_data.json"
 
@@ -14,14 +15,17 @@ var data: Dictionary = {
 		"bounce_quest": 0,
 		"brick_breaker": 0,
 		"space_defender": 0,
-		"hamster_game": 0
+		"hamster_game": 0,
+		"forbidden_treasures": 0,
+		"block_fill": 1
 	},
 	"settings": {
 		"sound": true,
 		"music": true,
 		"screen_shake": true,
 		"vibration": true,
-		"crt_filter": false
+		"crt_filter": false,
+		"theme": "light"
 	},
 	"unlocks": {
 		"snake_skin": ["classic_green"],
@@ -35,7 +39,11 @@ var data: Dictionary = {
 		"brick_ball": ["silver_sphere"],
 		"brick_arena": ["midnight_vault"],
 		"hamster_animal": ["hamster"],
-		"bounce_ground": ["level_1"]
+		"bounce_ground": ["level_1"],
+		"treasure_outfit": ["adventurer"],
+		"treasure_pick": ["iron_pick"],
+		"block_fill_theme": ["electric_cyan"],
+		"block_fill_trail": ["sparkle"]
 	},
 	"equipped": {
 		"snake_skin": "classic_green",
@@ -49,7 +57,11 @@ var data: Dictionary = {
 		"brick_ball": "silver_sphere",
 		"brick_arena": "midnight_vault",
 		"hamster_animal": "hamster",
-		"bounce_ground": "level_1"
+		"bounce_ground": "level_1",
+		"treasure_outfit": "adventurer",
+		"treasure_pick": "iron_pick",
+		"block_fill_theme": "electric_cyan",
+		"block_fill_trail": "sparkle"
 	}
 }
 
@@ -136,7 +148,9 @@ func reset_all_high_scores() -> void:
 		"bounce_quest": 0,
 		"brick_breaker": 0,
 		"space_defender": 0,
-		"hamster_game": 0
+		"hamster_game": 0,
+		"forbidden_treasures": 0,
+		"block_fill": 1
 	}
 	save_data()
 
@@ -159,7 +173,8 @@ func reset_all_settings() -> void:
 		"music": true,
 		"screen_shake": true,
 		"vibration": true,
-		"crt_filter": false
+		"crt_filter": false,
+		"theme": "light"
 	}
 	save_data()
 
@@ -193,3 +208,4 @@ func set_equipped(category: String, item_id: String) -> void:
 		data["equipped"] = {}
 	data["equipped"][category] = item_id
 	save_data()
+	item_equipped.emit(category, item_id)

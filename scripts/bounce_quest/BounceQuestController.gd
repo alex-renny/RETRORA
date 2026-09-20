@@ -52,6 +52,9 @@ func _ready():
 	high_score = SaveManager.get_high_score("bounce_quest")
 	player.died.connect(_on_player_died)
 
+	SettingsManager.theme_changed.connect(func(_thm): _apply_theme())
+	_apply_theme()
+
 	_setup_customizer()
 	var initial_ball = SaveManager.get_equipped("bounce_ball", "classic_red")
 	player.apply_ball_skin(initial_ball)
@@ -63,6 +66,22 @@ func _ready():
 	retry_btn.pressed.connect(restart_quest)
 	menu_btn.pressed.connect(func(): GameManager.go_to_game_select())
 	next_level_btn.pressed.connect(_load_next_level)
+
+func _apply_theme():
+	var p = SettingsManager.get_palette()
+	level_label.add_theme_color_override("font_color", p["text_primary"])
+	score_label.add_theme_color_override("font_color", p["text_accent"])
+	lives_label.add_theme_color_override("font_color", p["accent_danger"])
+
+	var top_bar = get_node_or_null("HUD/TopBar")
+	if top_bar is Panel:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = p["card_bg"]
+		sb.set_border_width_all(1)
+		sb.border_color = p["card_border"]
+		sb.corner_radius_bottom_left = 10
+		sb.corner_radius_bottom_right = 10
+		top_bar.add_theme_stylebox_override("panel", sb)
 
 	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
 	if btn_container and not btn_container.has_node("UnlocksButton"):

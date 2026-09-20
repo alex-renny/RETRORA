@@ -46,47 +46,55 @@ var min_swipe_dist: float = 25.0
 var current_skin_id: String = "classic_green"
 var current_arena_id: String = "classic_field"
 
+var anim_time: float = 0.0
+var tongue_timer: float = 0.0
+
 const SKIN_DATA = {
 	"classic_green": {
-		"head": Color(0.4, 0.9, 0.3),
-		"b1": Color(0.25, 0.75, 0.25),
-		"b2": Color(0.2, 0.65, 0.2),
-		"eye": Color(0.05, 0.1, 0.05)
+		"head": Color(0.18, 0.82, 0.35),
+		"b1": Color(0.14, 0.72, 0.28),
+		"b2": Color(0.10, 0.60, 0.22),
+		"stripe": Color(0.35, 0.95, 0.50),
+		"eye": Color(0.05, 0.15, 0.05)
 	},
 	"neon_viper": {
-		"head": Color(0.0, 1.0, 0.9),
-		"b1": Color(0.0, 0.7, 1.0),
-		"b2": Color(0.85, 0.1, 1.0),
-		"eye": Color(1.0, 1.0, 1.0)
+		"head": Color(0.0, 0.95, 0.85),
+		"b1": Color(0.0, 0.75, 0.95),
+		"b2": Color(0.75, 0.15, 0.95),
+		"stripe": Color(0.60, 1.0, 1.0),
+		"eye": Color(0.05, 0.05, 0.2)
 	},
 	"desert_cobra": {
-		"head": Color(1.0, 0.75, 0.2),
-		"b1": Color(0.85, 0.55, 0.15),
-		"b2": Color(0.7, 0.45, 0.1),
-		"eye": Color(0.9, 0.1, 0.1)
+		"head": Color(0.95, 0.70, 0.18),
+		"b1": Color(0.85, 0.55, 0.12),
+		"b2": Color(0.70, 0.40, 0.08),
+		"stripe": Color(1.0, 0.88, 0.45),
+		"eye": Color(0.5, 0.1, 0.05)
 	},
 	"cyber_dragon": {
-		"head": Color(1.0, 0.2, 0.3),
-		"b1": Color(0.9, 0.1, 0.15),
-		"b2": Color(1.0, 0.7, 0.1),
-		"eye": Color(0.2, 1.0, 0.8)
+		"head": Color(1.0, 0.25, 0.35),
+		"b1": Color(0.90, 0.15, 0.20),
+		"b2": Color(0.98, 0.65, 0.10),
+		"stripe": Color(1.0, 0.85, 0.40),
+		"eye": Color(0.1, 0.8, 0.9)
 	},
 	"shadow_wyrm": {
-		"head": Color(0.65, 0.3, 0.95),
-		"b1": Color(0.3, 0.12, 0.45),
-		"b2": Color(0.18, 0.08, 0.3),
-		"eye": Color(0.9, 0.2, 0.9)
+		"head": Color(0.65, 0.35, 0.95),
+		"b1": Color(0.40, 0.18, 0.65),
+		"b2": Color(0.25, 0.10, 0.45),
+		"stripe": Color(0.85, 0.55, 1.0),
+		"eye": Color(0.95, 0.3, 0.95)
 	}
 }
 
-const ARENA_DATA = {
+const ARENA_DATA_DARK = {
 	"classic_field": {
-		"bg": Color(0.08, 0.12, 0.08),
-		"border": Color(0.3, 0.6, 0.3),
-		"grid": Color(0.12, 0.18, 0.12)
+		"bg": Color(0.08, 0.13, 0.09),
+		"border": Color(0.3, 0.65, 0.35),
+		"grid": Color(0.11, 0.18, 0.12)
 	},
 	"synthwave_grid": {
-		"bg": Color(0.07, 0.04, 0.13),
+		"bg": Color(0.08, 0.04, 0.14),
 		"border": Color(0.95, 0.2, 0.85),
 		"grid": Color(0.2, 0.1, 0.35)
 	},
@@ -107,6 +115,34 @@ const ARENA_DATA = {
 	}
 }
 
+const ARENA_DATA_LIGHT = {
+	"classic_field": {
+		"bg": Color(0.92, 0.98, 0.94),
+		"border": Color(0.15, 0.70, 0.30),
+		"grid": Color(0.82, 0.93, 0.85)
+	},
+	"synthwave_grid": {
+		"bg": Color(0.98, 0.94, 0.98),
+		"border": Color(0.85, 0.20, 0.75),
+		"grid": Color(0.93, 0.85, 0.95)
+	},
+	"desert_dunes": {
+		"bg": Color(0.99, 0.96, 0.88),
+		"border": Color(0.85, 0.60, 0.15),
+		"grid": Color(0.94, 0.88, 0.76)
+	},
+	"frozen_tundra": {
+		"bg": Color(0.93, 0.97, 1.0),
+		"border": Color(0.20, 0.65, 0.95),
+		"grid": Color(0.83, 0.91, 0.98)
+	},
+	"volcanic_abyss": {
+		"bg": Color(0.99, 0.92, 0.92),
+		"border": Color(0.90, 0.25, 0.20),
+		"grid": Color(0.95, 0.84, 0.84)
+	}
+}
+
 func _ready():
 	high_score = SaveManager.get_high_score("snake")
 	best_label.text = "BEST: %d" % high_score
@@ -114,13 +150,16 @@ func _ready():
 	current_skin_id = SaveManager.get_equipped("snake_skin", "classic_green")
 	current_arena_id = SaveManager.get_equipped("snake_arena", "classic_field")
 
+	SettingsManager.theme_changed.connect(func(_thm): _apply_theme())
+	_apply_theme()
+
 	_setup_customizer()
 
 	if skin_button:
 		skin_button.pressed.connect(func(): customizer_modal.show_modal())
 	pause_button.pressed.connect(_toggle_pause)
 	retry_button.pressed.connect(start_game)
-	menu_button.pressed.connect(func(): GameManager.go_to_main_menu())
+	menu_button.pressed.connect(func(): GameManager.go_to_game_select())
 
 	var btn_container = get_node_or_null("HUD/GameOverPanel/VBox/BtnContainer")
 	if btn_container and not btn_container.has_node("UnlocksButton"):
@@ -140,6 +179,21 @@ func _ready():
 	btn_right.pressed.connect(func(): _set_direction(Vector2i(1, 0)))
 
 	start_game()
+
+func _apply_theme():
+	var p = SettingsManager.get_palette()
+	score_label.add_theme_color_override("font_color", p["text_primary"])
+	best_label.add_theme_color_override("font_color", p["text_secondary"])
+	var top_bar = get_node_or_null("HUD/TopBar")
+	if top_bar is Panel:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = p["card_bg"]
+		sb.set_border_width_all(1)
+		sb.border_color = p["card_border"]
+		sb.corner_radius_bottom_left = 10
+		sb.corner_radius_bottom_right = 10
+		top_bar.add_theme_stylebox_override("panel", sb)
+	queue_redraw()
 
 func _setup_customizer():
 	if not customizer_modal:
@@ -234,10 +288,17 @@ func _process(delta: float):
 	if current_state != State.PLAYING:
 		return
 
+	anim_time += delta
+	tongue_timer += delta
+	if tongue_timer > 2.4:
+		tongue_timer = 0.0
+
 	timer += delta
 	if timer >= tick_interval:
 		timer = 0.0
 		_move_snake()
+
+	queue_redraw()
 
 func _move_snake():
 	direction = pending_direction
@@ -309,14 +370,16 @@ func _toggle_pause():
 		)
 
 func _draw():
-	var arena = ARENA_DATA.get(current_arena_id, ARENA_DATA["classic_field"])
+	var is_light = SettingsManager.is_light_theme()
+	var arena_dict = ARENA_DATA_LIGHT if is_light else ARENA_DATA_DARK
+	var arena = arena_dict.get(current_arena_id, arena_dict["classic_field"])
 	var skin = SKIN_DATA.get(current_skin_id, SKIN_DATA["classic_green"])
 
 	# 1. Background arena
 	var arena_rect = Rect2(GRID_ORIGIN, Vector2(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE))
 	draw_rect(arena_rect, arena["bg"])
 
-	# Grid lines/dots for arena flavor
+	# Subtle grid lines
 	for x in range(1, GRID_COLS):
 		var px = GRID_ORIGIN.x + x * CELL_SIZE
 		draw_line(Vector2(px, GRID_ORIGIN.y), Vector2(px, GRID_ORIGIN.y + GRID_ROWS * CELL_SIZE), arena["grid"], 1.0)
@@ -325,36 +388,118 @@ func _draw():
 		draw_line(Vector2(GRID_ORIGIN.x, py), Vector2(GRID_ORIGIN.x + GRID_COLS * CELL_SIZE, py), arena["grid"], 1.0)
 
 	# Arena border
-	draw_rect(arena_rect, arena["border"], false, 2.0)
+	draw_rect(arena_rect, arena["border"], false, 2.5)
 
-	# 2. Food (Bright red/apple with green leaf dot)
-	var food_screen_pos = GRID_ORIGIN + Vector2(food_pos) * CELL_SIZE
-	draw_rect(Rect2(food_screen_pos + Vector2(2, 2), Vector2(CELL_SIZE - 4, CELL_SIZE - 4)), Color(0.95, 0.2, 0.2))
-	draw_rect(Rect2(food_screen_pos + Vector2(6, 1), Vector2(4, 3)), Color(0.3, 0.85, 0.3))
+	# 2. 3D Juicy Apple with sparkle particles & pulse
+	var food_center = GRID_ORIGIN + Vector2(food_pos) * CELL_SIZE + Vector2(CELL_SIZE * 0.5, CELL_SIZE * 0.5)
+	var apple_pulse = 1.0 + sin(anim_time * 6.0) * 0.05
+	var r_apple = (CELL_SIZE * 0.42) * apple_pulse
 
-	# 3. Snake Body
-	for i in range(snake.size()):
+	# Apple drop shadow
+	draw_circle(food_center + Vector2(1.0, 2.0), r_apple * 0.9, Color(0, 0, 0, 0.22 if is_light else 0.45))
+	# Apple base body
+	draw_circle(food_center, r_apple, Color(0.92, 0.16, 0.16))
+	# Apple bottom shaded sphere rim
+	draw_circle(food_center + Vector2(0.8, 1.2), r_apple * 0.82, Color(0.80, 0.10, 0.12))
+	# Apple top-left radial specular shine
+	draw_circle(food_center + Vector2(-r_apple * 0.32, -r_apple * 0.32), r_apple * 0.38, Color(1.0, 0.48, 0.48, 0.85))
+	# Catchlight bright white dot
+	draw_circle(food_center + Vector2(-r_apple * 0.35, -r_apple * 0.35), 1.5, Color.WHITE)
+
+	# Curved brown stem
+	var stem_color = Color(0.48, 0.28, 0.12)
+	draw_line(food_center + Vector2(0, -r_apple * 0.6), food_center + Vector2(2.0, -r_apple - 3.5), stem_color, 1.6)
+
+	# Vibrant green leaf
+	var leaf_pts = PackedVector2Array([
+		food_center + Vector2(1.0, -r_apple * 0.8),
+		food_center + Vector2(6.0, -r_apple - 2.5),
+		food_center + Vector2(7.5, -r_apple * 0.6),
+		food_center + Vector2(2.5, -r_apple * 0.5)
+	])
+	draw_colored_polygon(leaf_pts, Color(0.22, 0.85, 0.28))
+
+	# Orbiting sparkle particles around apple
+	for s_idx in range(3):
+		var spark_ang = anim_time * 3.2 + float(s_idx) * (TAU / 3.0)
+		var spark_rad = r_apple + 4.5 + sin(anim_time * 5.0 + s_idx) * 2.0
+		var sp_pos = food_center + Vector2(cos(spark_ang), sin(spark_ang)) * spark_rad
+		var sp_alpha = 0.4 + 0.6 * sin(anim_time * 6.0 + s_idx * 2.0)
+		draw_circle(sp_pos, 1.2, Color(1.0, 0.92, 0.4, clamp(sp_alpha, 0.0, 1.0)))
+
+	# 3. Organic Snake Body & Slither Undulation
+	var dir_norm = Vector2(-direction.y, direction.x)
+
+	# Draw body from tail to neck (so head renders on top)
+	for i in range(snake.size() - 1, 0, -1):
 		var part = snake[i]
-		var screen_pos = GRID_ORIGIN + Vector2(part) * CELL_SIZE
-		var rect = Rect2(screen_pos + Vector2(1, 1), Vector2(CELL_SIZE - 2, CELL_SIZE - 2))
+		var base_center = GRID_ORIGIN + Vector2(part) * CELL_SIZE + Vector2(CELL_SIZE * 0.5, CELL_SIZE * 0.5)
+		var wave_offset = dir_norm * sin(anim_time * 12.0 - float(i) * 0.55) * (1.6 * clamp(float(i) / 4.0, 0.0, 1.0))
+		var center = base_center + wave_offset
 
-		if i == 0:
-			# Head
-			draw_rect(rect, skin["head"])
-			var eye_color: Color = skin["eye"]
-			if direction == Vector2i(1, 0): # Facing right
-				draw_rect(Rect2(screen_pos + Vector2(10, 3), Vector2(2, 2)), eye_color)
-				draw_rect(Rect2(screen_pos + Vector2(10, 11), Vector2(2, 2)), eye_color)
-			elif direction == Vector2i(-1, 0): # Facing left
-				draw_rect(Rect2(screen_pos + Vector2(4, 3), Vector2(2, 2)), eye_color)
-				draw_rect(Rect2(screen_pos + Vector2(4, 11), Vector2(2, 2)), eye_color)
-			elif direction == Vector2i(0, -1): # Facing up
-				draw_rect(Rect2(screen_pos + Vector2(3, 4), Vector2(2, 2)), eye_color)
-				draw_rect(Rect2(screen_pos + Vector2(11, 4), Vector2(2, 2)), eye_color)
-			elif direction == Vector2i(0, 1): # Facing down
-				draw_rect(Rect2(screen_pos + Vector2(3, 10), Vector2(2, 2)), eye_color)
-				draw_rect(Rect2(screen_pos + Vector2(11, 10), Vector2(2, 2)), eye_color)
-		else:
-			# Body with alternating colors
-			var body_col = skin["b1"] if i % 2 == 0 else skin["b2"]
-			draw_rect(rect, body_col)
+		# Taper tail radius
+		var seg_ratio = 1.0
+		if i == snake.size() - 1:
+			seg_ratio = 0.65
+		elif i == snake.size() - 2:
+			seg_ratio = 0.82
+		var seg_radius = (CELL_SIZE * 0.46) * seg_ratio
+
+		# Drop shadow under segment
+		draw_circle(center + Vector2(1.0, 1.5), seg_radius, Color(0, 0, 0, 0.18 if is_light else 0.4))
+
+		# Alternating scale colors
+		var body_col = skin["b1"] if i % 2 == 0 else skin["b2"]
+		draw_circle(center, seg_radius, body_col)
+
+		# Dorsal highlight ridge on back
+		draw_circle(center - Vector2(dir_norm.x, dir_norm.y) * 1.5, seg_radius * 0.42, skin.get("stripe", skin["head"]))
+
+	# 4. Expressive Snake Head
+	if snake.size() > 0:
+		var head_part = snake[0]
+		var head_center = GRID_ORIGIN + Vector2(head_part) * CELL_SIZE + Vector2(CELL_SIZE * 0.5, CELL_SIZE * 0.5)
+		var head_radius = CELL_SIZE * 0.48
+
+		# Head drop shadow
+		draw_circle(head_center + Vector2(1.0, 1.5), head_radius, Color(0, 0, 0, 0.22 if is_light else 0.45))
+
+		# Head base shape
+		draw_circle(head_center, head_radius, skin["head"])
+
+		# Head snout extension in travel direction
+		var dir_v = Vector2(direction)
+		draw_circle(head_center + dir_v * 3.5, head_radius * 0.75, skin["head"])
+
+		# Forked flickering tongue
+		if tongue_timer < 0.35 and current_state == State.PLAYING:
+			var tongue_root = head_center + dir_v * (head_radius + 1.0)
+			var tongue_flick = sin(anim_time * 40.0) * 1.5
+			var tongue_ext = dir_v * 7.5 + dir_norm * tongue_flick
+			var tongue_tip = tongue_root + tongue_ext
+			var fork_l = tongue_tip + dir_v * 3.0 + dir_norm * 2.5
+			var fork_r = tongue_tip + dir_v * 3.0 - dir_norm * 2.5
+
+			draw_line(tongue_root, tongue_tip, Color(0.95, 0.15, 0.2), 1.8)
+			draw_line(tongue_tip, fork_l, Color(0.95, 0.15, 0.2), 1.4)
+			draw_line(tongue_tip, fork_r, Color(0.95, 0.15, 0.2), 1.4)
+
+		# Eyes with shiny catchlights
+		var eye_offset_fwd = dir_v * 2.5
+		var eye_offset_lat = dir_norm * 4.2
+		var eye_l = head_center + eye_offset_fwd + eye_offset_lat
+		var eye_r = head_center + eye_offset_fwd - eye_offset_lat
+
+		# Eye whites
+		draw_circle(eye_l, 2.8, Color(0.98, 0.98, 0.98))
+		draw_circle(eye_r, 2.8, Color(0.98, 0.98, 0.98))
+
+		# Pupil looking forward
+		var pupil_pos_l = eye_l + dir_v * 0.8
+		var pupil_pos_r = eye_r + dir_v * 0.8
+		draw_circle(pupil_pos_l, 1.6, skin["eye"])
+		draw_circle(pupil_pos_r, 1.6, skin["eye"])
+
+		# Specular glint (catchlight)
+		draw_circle(pupil_pos_l - Vector2(0.5, 0.5), 0.7, Color.WHITE)
+		draw_circle(pupil_pos_r - Vector2(0.5, 0.5), 0.7, Color.WHITE)

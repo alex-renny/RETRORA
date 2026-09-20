@@ -11,6 +11,15 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_settings")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.97, 0.98, 0.99, 1)
+
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -20,18 +29,34 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(280, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 alignment = 1
 
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
 theme_override_font_sizes/font_size = 22
 text = "SETTINGS"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
+
+[node name="ThemeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/ThemeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
+text = "App Theme"
+
+[node name="BtnTheme" type="Button" parent="CenterContainer/VBoxContainer/ThemeRow"]
+custom_minimum_size = Vector2(90, 32)
+layout_mode = 2
+text = "☀️ LIGHT"
 
 [node name="SoundRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 36)
@@ -40,10 +65,11 @@ layout_mode = 2
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/SoundRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
 text = "Sound SFX"
 
 [node name="BtnSound" type="Button" parent="CenterContainer/VBoxContainer/SoundRow"]
-custom_minimum_size = Vector2(70, 32)
+custom_minimum_size = Vector2(80, 32)
 layout_mode = 2
 text = "ON"
 
@@ -54,10 +80,11 @@ layout_mode = 2
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/MusicRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
 text = "Music"
 
 [node name="BtnMusic" type="Button" parent="CenterContainer/VBoxContainer/MusicRow"]
-custom_minimum_size = Vector2(70, 32)
+custom_minimum_size = Vector2(80, 32)
 layout_mode = 2
 text = "ON"
 
@@ -68,10 +95,11 @@ layout_mode = 2
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/ShakeRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
 text = "Screen Shake"
 
 [node name="BtnShake" type="Button" parent="CenterContainer/VBoxContainer/ShakeRow"]
-custom_minimum_size = Vector2(70, 32)
+custom_minimum_size = Vector2(80, 32)
 layout_mode = 2
 text = "ON"
 
@@ -82,10 +110,11 @@ layout_mode = 2
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/VibRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
 text = "Vibration"
 
 [node name="BtnVib" type="Button" parent="CenterContainer/VBoxContainer/VibRow"]
-custom_minimum_size = Vector2(70, 32)
+custom_minimum_size = Vector2(80, 32)
 layout_mode = 2
 text = "ON"
 
@@ -96,10 +125,11 @@ layout_mode = 2
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/CRTRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.09, 0.16, 1)
 text = "CRT Scanlines"
 
 [node name="BtnCRT" type="Button" parent="CenterContainer/VBoxContainer/CRTRow"]
-custom_minimum_size = Vector2(70, 32)
+custom_minimum_size = Vector2(80, 32)
 layout_mode = 2
 text = "OFF"
 
@@ -107,14 +137,14 @@ text = "OFF"
 layout_mode = 2
 
 [node name="ResetScoresButton" type="Button" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(240, 36)
+custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_colors/font_color = Color(0.9, 0.25, 0.25, 1)
 text = "RESET HIGH SCORES"
 
 [node name="ResetSettingsButton" type="Button" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(240, 36)
+custom_minimum_size = Vector2(240, 38)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "RESTORE DEFAULTS"
