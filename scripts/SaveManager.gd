@@ -16,7 +16,6 @@ var data: Dictionary = {
 		"brick_breaker": 0,
 		"space_defender": 0,
 		"hamster_game": 0,
-		"forbidden_treasures": 0,
 		"block_fill": 1
 	},
 	"settings": {
@@ -40,8 +39,6 @@ var data: Dictionary = {
 		"brick_arena": ["midnight_vault"],
 		"hamster_animal": ["hamster"],
 		"bounce_ground": ["level_1"],
-		"treasure_outfit": ["adventurer"],
-		"treasure_pick": ["iron_pick"],
 		"block_fill_theme": ["electric_cyan"],
 		"block_fill_trail": ["sparkle"]
 	},
@@ -58,8 +55,6 @@ var data: Dictionary = {
 		"brick_arena": "midnight_vault",
 		"hamster_animal": "hamster",
 		"bounce_ground": "level_1",
-		"treasure_outfit": "adventurer",
-		"treasure_pick": "iron_pick",
 		"block_fill_theme": "electric_cyan",
 		"block_fill_trail": "sparkle"
 	}
@@ -149,7 +144,6 @@ func reset_all_high_scores() -> void:
 		"brick_breaker": 0,
 		"space_defender": 0,
 		"hamster_game": 0,
-		"forbidden_treasures": 0,
 		"block_fill": 1
 	}
 	save_data()

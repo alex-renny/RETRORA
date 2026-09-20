@@ -46,7 +46,6 @@ func _populate_scores():
 		{"id": "brick_breaker", "title": "Brick Breaker", "unit": "pts"},
 		{"id": "space_defender", "title": "Space Defender", "unit": "pts"},
 		{"id": "hamster_game", "title": "Hamster Game", "unit": "pts"},
-		{"id": "forbidden_treasures", "title": "Forbidden Treasures", "unit": "$"},
 		{"id": "block_fill", "title": "Block Fill", "unit": "lvl"}
 	]
 
