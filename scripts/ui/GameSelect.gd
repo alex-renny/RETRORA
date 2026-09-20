@@ -1,99 +1,61 @@
 extends Control
 
-@onready var color_rect: ColorRect = $ColorRect
-@onready var title_lbl: Label = $CenterContainer/VBoxContainer/Title
-@onready var subtitle_lbl: Label = $CenterContainer/VBoxContainer/Subtitle
+const GAME_CARD := preload("res://scripts/ui/GameLibraryCard.gd")
 
-@onready var game_list: VBoxContainer = $CenterContainer/VBoxContainer/GameList
-@onready var back_button: Button = $CenterContainer/VBoxContainer/BackButton
+@onready var color_rect: ColorRect = $ColorRect
+@onready var title_lbl: Label = $MarginContainer/VBoxContainer/TopRow/HeaderCopy/Title
+@onready var subtitle_lbl: Label = $MarginContainer/VBoxContainer/TopRow/HeaderCopy/Subtitle
+@onready var game_grid: GridContainer = $MarginContainer/VBoxContainer/GameScroll/GameGrid
+@onready var back_button: Button = $MarginContainer/VBoxContainer/TopRow/BackButton
 @onready var customizer_modal: Control = $CustomizerModal
 
-func _ready():
+func _ready() -> void:
 	back_button.pressed.connect(func(): GameManager.go_to_main_menu())
-	SettingsManager.theme_changed.connect(func(_th): _refresh_theme())
+	SettingsManager.theme_changed.connect(func(_theme): _refresh_theme())
 	_refresh_theme()
 	_populate_games()
 
-func _refresh_theme():
-	var pal = SettingsManager.get_palette()
-	if color_rect:
-		color_rect.color = pal["bg"]
-	if title_lbl:
-		title_lbl.modulate = pal["text_primary"]
-	if subtitle_lbl:
-		subtitle_lbl.modulate = pal["text_secondary"]
+func _refresh_theme() -> void:
+	var pal := SettingsManager.get_palette()
+	color_rect.color = pal["bg"]
+	title_lbl.add_theme_color_override("font_color", pal["text_primary"])
+	subtitle_lbl.add_theme_color_override("font_color", pal["text_secondary"])
 
-	if back_button:
-		var b_style = StyleBoxFlat.new()
-		b_style.set_corner_radius_all(8)
-		b_style.bg_color = pal["card_bg"]
-		b_style.border_color = pal["card_border"]
-		b_style.set_border_width_all(1.5)
-		back_button.add_theme_stylebox_override("normal", b_style)
-		back_button.add_theme_color_override("font_color", pal["text_primary"])
+	var back_style := StyleBoxFlat.new()
+	back_style.bg_color = pal["card_bg"]
+	back_style.border_color = pal["card_border"]
+	back_style.set_border_width_all(1)
+	back_style.set_corner_radius_all(8)
+	back_button.add_theme_stylebox_override("normal", back_style)
+	back_button.add_theme_color_override("font_color", pal["text_primary"])
 
-func _populate_games():
-	for child in game_list.get_children():
+	for card in game_grid.get_children():
+		card.refresh_theme(pal)
+
+func _populate_games() -> void:
+	for child in game_grid.get_children():
 		child.queue_free()
 
-	var pal = SettingsManager.get_palette()
+	var game_ids := GameRegistry.list_games()
+	game_ids.sort_custom(func(a, b): return GameRegistry.get_game(a).get("added_order", 0) > GameRegistry.get_game(b).get("added_order", 0))
+	var pal := SettingsManager.get_palette()
 
-	for game_id in GameRegistry.list_games():
-		var info = GameRegistry.get_game(game_id)
-		var high_score = SaveManager.get_high_score(info.get("high_score_key", game_id))
-		var status = info.get("status", "")
-		var gid = game_id
-		var scene_path = info.get("scene", "")
+	for index in game_ids.size():
+		var game_id: String = game_ids[index]
+		var info := GameRegistry.get_game(game_id)
+		var card = GAME_CARD.new()
+		card.setup(game_id, info, SaveManager.get_high_score(info.get("high_score_key", game_id)), false, pal)
+		card.play_requested.connect(_play_game)
+		card.customize_requested.connect(_show_customizer)
+		game_grid.add_child(card)
 
-		var row = HBoxContainer.new()
-		row.add_theme_constant_override("separation", 6)
+func _play_game(game_id: String) -> void:
+	var info := GameRegistry.get_game(game_id)
+	if info.get("status", "") == "PLAYABLE":
+		GameManager.selected_game_id = game_id
+		GameManager.change_scene(info.get("scene", ""))
 
-		var play_btn = Button.new()
-		if status == "PLAYABLE":
-			play_btn.text = "%s  ▶  (BEST: %d)" % [info.get("title", game_id), high_score]
-		else:
-			play_btn.text = "%s  [COMING SOON]" % info.get("title", game_id)
-			play_btn.disabled = true
-
-		play_btn.custom_minimum_size = Vector2(230, 44)
-		play_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-		var p_style = StyleBoxFlat.new()
-		p_style.set_corner_radius_all(8)
-		p_style.content_margin_left = 12
-		p_style.content_margin_right = 12
-		p_style.bg_color = pal["card_bg"]
-		p_style.border_color = pal["card_border"]
-		p_style.set_border_width_all(1.5)
-		play_btn.add_theme_stylebox_override("normal", p_style)
-		play_btn.add_theme_color_override("font_color", pal["text_primary"])
-
-		if status == "PLAYABLE":
-			play_btn.pressed.connect(func(): 
-				GameManager.selected_game_id = gid
-				GameManager.change_scene(scene_path)
-			)
-		row.add_child(play_btn)
-
-		if status == "PLAYABLE":
-			var unlock_btn = Button.new()
-			unlock_btn.text = "🎨"
-			unlock_btn.tooltip_text = "View Skins, Grounds & Unlocks"
-			unlock_btn.custom_minimum_size = Vector2(44, 44)
-			
-			var u_style = StyleBoxFlat.new()
-			u_style.set_corner_radius_all(8)
-			u_style.bg_color = pal["card_bg"]
-			u_style.border_color = pal["accent_warning"]
-			u_style.set_border_width_all(1.5)
-			unlock_btn.add_theme_stylebox_override("normal", u_style)
-			unlock_btn.modulate = pal["accent_warning"]
-
-			unlock_btn.pressed.connect(func():
-				var cdata = GameRegistry.get_customizer_data(gid)
-				customizer_modal.setup(cdata.get("title", "UNLOCKS"), cdata.get("categories", []), "BACK TO SELECT")
-				customizer_modal.show_modal()
-			)
-			row.add_child(unlock_btn)
-
-		game_list.add_child(row)
+func _show_customizer(game_id: String) -> void:
+	var cdata := GameRegistry.get_customizer_data(game_id)
+	customizer_modal.setup(cdata.get("title", "UNLOCKS"), cdata.get("categories", []), "BACK TO LIBRARY")
+	customizer_modal.show_modal()

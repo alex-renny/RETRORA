@@ -20,49 +20,58 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.04, 0.05, 0.08, 1)
+mouse_filter = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(320, 0)
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-alignment = 1
+theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "RETRORA ARCADE"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
-theme_override_font_sizes/font_size = 12
-text = "SELECT A GAME TO PLAY"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="GameList" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="TopRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HSeparator2" type="HSeparator" parent="CenterContainer/VBoxContainer"]
+[node name="BackButton" type="Button" parent="MarginContainer/VBoxContainer/TopRow"]
+custom_minimum_size = Vector2(38, 36)
 layout_mode = 2
+text = "‹"
 
-[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(240, 40)
+[node name="HeaderCopy" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TopRow"]
 layout_mode = 2
-size_flags_horizontal = 4
-text = "BACK TO MENU"
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer/TopRow/HeaderCopy"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+text = "GAME LIBRARY"
+
+[node name="Subtitle" type="Label" parent="MarginContainer/VBoxContainer/TopRow/HeaderCopy"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "PICK UP WHERE YOU LEFT OFF"
+
+[node name="GameScroll" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GameGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/GameScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 16
+columns = 2
 
 [node name="CustomizerModal" parent="." instance=ExtResource("2_modal")]
-
